@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="assets\background_img.jpg" />
+    <None Remove="assets\btn_disabled.png" />
+    <None Remove="assets\btn_highlight.png" />
+    <None Remove="assets\btn_normal.png" />
+    <None Remove="assets\Friz-Quadrata.otf" />
+    <None Remove="assets\Grunge_v_by_struckdumb.jpg" />
+    <None Remove="assets\HighRes Parchment.jpg" />
+    <None Remove="assets\MORPHEUS.TTF" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FreedomClient.Core\FreedomClient.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\background_img.jpg" />
+    <Resource Include="assets\btn_disabled.png" />
+    <Resource Include="assets\btn_highlight.png" />
+    <Resource Include="assets\btn_normal.png" />
+    <Resource Include="assets\Friz-Quadrata.otf" />
+    <Resource Include="assets\Grunge_v_by_struckdumb.jpg" />
+    <Resource Include="assets\HighRes Parchment.jpg" />
+    <Resource Include="assets\MORPHEUS.TTF" />
+  </ItemGroup>
+
+</Project>
