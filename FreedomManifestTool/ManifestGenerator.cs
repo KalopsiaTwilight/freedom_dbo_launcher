@@ -21,13 +21,14 @@ namespace FreedomManifestTool
         private static void GenerateManifest(string workingDirectory)
         {
             var manifest = new Dictionary<string, string>();
+            var hashAlgo = SHA1.Create();
             // Search through subdirectories as well for localisation texts
             foreach (var file in Directory.EnumerateFiles(workingDirectory, "*", SearchOption.AllDirectories))
             {
                 // Replace windows \'s in paths with unix /'s for platform compatability
                 var key = file.Substring(workingDirectory.Length + 1).Replace("\\", "/");
                 // Calculate sha1 hash 
-                var hashBytes = SHA1.HashData(File.ReadAllBytes(file));
+                var hashBytes = hashAlgo.ComputeHash(File.OpenRead(file));
                 StringBuilder hashResult = new StringBuilder(hashBytes.Length * 2);
                 // Save the sha1hash in lowercase for platform compatability
                 for (int i = 0; i < hashBytes.Length; i++)
