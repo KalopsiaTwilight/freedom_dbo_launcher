@@ -9,54 +9,41 @@ namespace FreedomClient.Core
     public class FileDownloadStartedEventArgs : EventArgs
     {
         public string FileName { get; set; }
-        public Dictionary<string, string> Manifest { get; set; }
 
-        public FileDownloadStartedEventArgs(string fileName, Dictionary<string, string> manifest)
+        public FileDownloadStartedEventArgs(string fileName)
         {
             FileName = fileName;
-            Manifest = manifest;
         }
     }
 
     public class FileDownloadCompletedEventArgs : EventArgs
     {
         public string FileName { get; set; }
-        public Dictionary<string, string> Manifest { get; set; }
 
-        public FileDownloadCompletedEventArgs(string fileName, Dictionary<string, string> manifest)
+        public FileDownloadCompletedEventArgs(string fileName)
         {
             FileName = fileName;
-            Manifest = manifest;
         }
     }
 
     public class FileVerifyStartedEventArgs : EventArgs
     {
         public string FileName { get; set; }
-        public Dictionary<string, string> Manifest { get; set; }
 
-        public FileVerifyStartedEventArgs(string fileName, Dictionary<string, string> manifest)
+        public FileVerifyStartedEventArgs(string fileName)
         {
             FileName = fileName;
-            Manifest = manifest;
         }
     }
 
     public class FileVerifyCompletedEventArgs : EventArgs
     {
         public string FileName { get; set; }
-        public Dictionary<string, string> Manifest { get; set; }
 
-        public FileVerifyCompletedEventArgs(string fileName, Dictionary<string, string> manifest)
+        public FileVerifyCompletedEventArgs(string fileName)
         {
             FileName = fileName;
-            Manifest = manifest;
         }
-    }
-
-    public class ClientUpdateCompletedEventArgs: EventArgs
-    {
-
     }
 
     public class ExceptionDuringDownloadEventArgs: EventArgs
