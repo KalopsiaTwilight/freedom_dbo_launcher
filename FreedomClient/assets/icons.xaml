@@ -1,0 +1,15 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Geometry x:Key="minus_solidGeometry">F1 M448,512z M0,0z M432,256C432,273.7,417.7,288,400,288L48,288C30.3,288 16,273.7 16,256 16,238.3 30.3,224 48,224L400,224C417.7,224,432,238.3,432,256z</Geometry>
+  <DrawingGroup x:Key="minus_solidDrawingGroup" ClipGeometry="M0,0 V512 H448 V0 H0 Z">
+        <GeometryDrawing Brush="#32292F" Geometry="{StaticResource minus_solidGeometry}" />
+  </DrawingGroup>
+  <DrawingImage x:Key="minus_solidDrawingImage" Drawing="{StaticResource minus_solidDrawingGroup}" />
+  <Geometry x:Key="xmark_solidGeometry">F1 M320,512z M0,0z M310.6,150.6C323.1,138.1 323.1,117.8 310.6,105.3 298.1,92.8 277.8,92.8 265.3,105.3L160,210.7 54.6,105.4C42.1,92.9 21.8,92.9 9.3,105.4 -3.2,117.9 -3.2,138.2 9.3,150.7L114.7,256 9.4,361.4C-3.1,373.9 -3.1,394.2 9.4,406.7 21.9,419.2 42.2,419.2 54.7,406.7L160,301.3 265.4,406.6C277.9,419.1 298.2,419.1 310.7,406.6 323.2,394.1 323.2,373.8 310.7,361.3L205.3,256 310.6,150.6z</Geometry>
+  <DrawingGroup x:Key="xmark_solidDrawingGroup" ClipGeometry="M0,0 V512 H320 V0 H0 Z">
+    <DrawingGroup.Transform>
+      <TranslateTransform X="0.074999988079071045" Y="0" />
+    </DrawingGroup.Transform>
+        <GeometryDrawing Brush="#32292F" Geometry="{StaticResource xmark_solidGeometry}" />
+  </DrawingGroup>
+  <DrawingImage x:Key="xmark_solidDrawingImage" Drawing="{StaticResource xmark_solidDrawingGroup}" />
+</ResourceDictionary>

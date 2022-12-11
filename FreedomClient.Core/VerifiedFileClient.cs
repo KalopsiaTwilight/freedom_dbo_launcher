@@ -71,7 +71,14 @@ namespace FreedomClient.Core
                 }
             }
             // Redownload invalid files
-            await DownloadManifestFiles(toRedownload, installDirectory, cancellationToken);
+            try
+            {
+                await DownloadManifestFiles(toRedownload, installDirectory, cancellationToken);
+            } catch(Exception ex)
+            {
+                ExceptionDuringDownload?.Invoke(this, new ExceptionDuringDownloadEventArgs(ex));
+                throw;
+            }
         }
 
         private async Task DownloadManifestFiles(Dictionary<string, string> manifest, string installPath, CancellationToken cancellationToken)
@@ -186,9 +193,13 @@ namespace FreedomClient.Core
         private async Task VerifyFile(string filePath, string validateHash, CancellationToken cancellationToken)
         {
             FileVerifyStarted?.Invoke(this, new FileVerifyStartedEventArgs(filePath));
-            var sha1Hash = await _hashAlgo.ComputeHashAsync(File.OpenRead(filePath), cancellationToken);
+            byte[] hash;
+            using (var filestream = File.OpenRead(filePath))
+            {
+                hash = await _hashAlgo.ComputeHashAsync(filestream, cancellationToken);
+            }
             var reportedHash = StringToByteArrayFastest(validateHash);
-            if (!ByteArrayCompare(sha1Hash, reportedHash))
+            if (!ByteArrayCompare(hash, reportedHash))
             {
                 File.Delete(filePath);
                 throw new TamperedFileException(filePath);

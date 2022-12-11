@@ -3,52 +3,55 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp1"
+        xmlns:local="clr-namespace:FreedomClient.Controls"
         mc:Ignorable="d"
-        Title="Freedom WoW" Height="450" Width="800" Background="#1A1D1A" >
-    <Grid>
+        Title="Freedom WoW" Height="450" Width="800" Background="#1A1D1A" 
+        WindowStyle="None">
+    <Grid MouseDown="MenuGrid_MouseDown">
         <Grid.RowDefinitions>
+            <RowDefinition Height="32"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
             <RowDefinition Height="4*"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
 
-        <Image Grid.ColumnSpan="2" Grid.RowSpan="3" Source="assets/Grunge_v_by_struckdumb.jpg" Stretch="UniformToFill" Opacity="0.31"></Image>
-        <Image Grid.ColumnSpan="2" Grid.RowSpan="3" Source="assets/HighRes Parchment.jpg" Stretch="UniformToFill" Opacity="0.40"></Image>
+        <Image Grid.RowSpan="4" Source="assets/images/Grunge_v_by_struckdumb.jpg" Stretch="UniformToFill" Opacity="0.31"></Image>
+        <Image Grid.RowSpan="4" Source="assets/images/HighRes Parchment.jpg" Stretch="UniformToFill" Opacity="0.40"></Image>
+        <Grid Grid.Row="0" Name="MenuGrid">
+            <Button Name="btnMinimize" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,32,0" Click="btnMinimize_Click">
+                <Image Height="20" Width="20" Source="{StaticResource minus_solidDrawingImage}"/>
+            </Button>
+            <Button Name="btnClose" Style="{StaticResource CloseButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,0,0" Click="btnClose_Click">
+                <Image Height="20" Width="20" Source="{StaticResource xmark_solidDrawingImage}"/>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="0" Grid.RowSpan="2">
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36" FontFamily="./assets/fonts/#Morpheus" Text="FREEDOM WOW">
+                <TextBlock.Foreground>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FFEFC917" Offset="0"/>
+                        <GradientStop Color="#FF372E08" Offset="0.88"/>
+                    </LinearGradientBrush>
+                </TextBlock.Foreground>
+                <TextBlock.Effect>
+                    <DropShadowEffect/>
+                </TextBlock.Effect>
+            </TextBlock>
+        </Grid>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   FontSize="36" FontFamily="./assets/#Morpheus"
-                   Grid.ColumnSpan="2"
-        >
-            <TextBlock.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFEFC917" Offset="0"/>
-                    <GradientStop Color="#FF372E08" Offset="0.88"/>
-                </LinearGradientBrush>
-            </TextBlock.Foreground>
-            <TextBlock.Effect>
-                <DropShadowEffect/>
-            </TextBlock.Effect>
-            FREEDOM WOW
-        </TextBlock>
-
-        <Border Grid.Row="1" Grid.ColumnSpan="2" CornerRadius="2" BorderBrush="#1A1D1A" BorderThickness="1"  Margin="10,10,10,10" >
+        <Border Grid.Row="2" CornerRadius="2" BorderBrush="#1A1D1A" BorderThickness="1"  Margin="10,10,10,10" >
             <Grid Background="#1A1D1A">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
-                <Image Grid.ColumnSpan="2" Source="assets/background_img.jpg" Stretch="Fill" Opacity="0.8"/>
+                <Image Grid.ColumnSpan="2" Source="assets/images/background_img.jpg" Stretch="Fill" Opacity="0.8"/>
                 <TextBlock Grid.ColumnSpan="2" Foreground="White" HorizontalAlignment="Center" >
                     Just imagine a cool background image here ok
                 </TextBlock>
                 <TextBlock 
                     HorizontalAlignment="Center" VerticalAlignment="Center" 
-                    Foreground="White" FontSize="36" FontFamily="./assets/#Morpheus"
+                    Foreground="White" FontSize="36" FontFamily="./assets/fonts/#Morpheus"
                  >
                     Happy New Core!
                 </TextBlock>
@@ -58,13 +61,13 @@
                  >
                     (Or some other welcoming message)
                 </TextBlock>
-                <Button 
+                <Button Style="{StaticResource BigButton}"
                     Grid.Column="1" Margin="0,10,10,0" HorizontalAlignment="Right" VerticalAlignment="Top"
                     Click="btnForums_Click"
                 >
                     Forums
                 </Button>
-                <Button 
+                <Button Style="{StaticResource BigButton}"
                     Grid.Column="1" Margin="0,75,10,0" HorizontalAlignment="Right" VerticalAlignment="Top"
                     Click="btnStatus_Click"        
                 >
@@ -73,33 +76,30 @@
             </Grid>
         </Border>
 
-        <ProgressBar 
-            Grid.Row="2" Grid.Column="0" Margin="10,30,0,10"
-            Height="15"
-            Background="{x:Null}" BorderThickness="0"
-            Minimum="0" Maximum="100"
-            Name="pgbProgress">
-            <ProgressBar.Foreground>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF0A9438" Offset="0.21"/>
-                    <GradientStop Color="#FF055820" Offset="0.74"/>
-                </LinearGradientBrush>
-            </ProgressBar.Foreground>
-            <ProgressBar.Effect>
-                <DropShadowEffect/>
-            </ProgressBar.Effect>
-        </ProgressBar>
-        <TextBlock 
-            Grid.Row="2" Margin="10,0,0,30" VerticalAlignment="Center" HorizontalAlignment="Center"
-            Foreground="White" FontSize="18" FontFamily="./assets/#Friz Quadrata Std"
-            Name="txtProgress">
-        </TextBlock>
-        <Button
-            Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,20,0"
-            Name="btnMain"
-            Click="btnMain_Click"
-        >
-            Launch
-        </Button>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock 
+                Margin="10,0,0,30" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Foreground="White" FontSize="16" FontFamily="./assets/fonts/#Friz Quadrata Std"
+                Name="txtProgress">
+            </TextBlock>
+            <ProgressBar Style="{DynamicResource ProgressBarStyle}" 
+                Height="15" Grid.Column="0" Margin="40,30,0,10"
+                Minimum="0" Maximum="100"
+                Name="pgbProgress">
+                <ProgressBar.Effect>
+                    <DropShadowEffect/>
+                </ProgressBar.Effect>
+            </ProgressBar>
+            <Button Style="{StaticResource BigButton}"
+                Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right" Margin="0,0,20,0"
+                Name="btnMain"
+                Click="btnMain_Click">
+                Launch
+            </Button>
+        </Grid>
     </Grid>
 </Window>

@@ -23,6 +23,7 @@ namespace WpfApp1
         private CancellationToken _downloadToken;
         public MainWindow(VerifiedFileClient fileClient, ApplicationState state)
         {
+            _downloadToken = new CancellationToken();
             _fileClient = fileClient;
             _appState = state;
             _fileClient.FileDownloadStarted += OnFileDownloadStart;
@@ -45,6 +46,7 @@ namespace WpfApp1
                 VerifyFiles();
             }
         }
+
 
         private async void VerifyFiles()
         {
@@ -103,19 +105,29 @@ namespace WpfApp1
 
         private void btnForums_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("https://wowfreedom-rp.com/f/");
+            var pStart = new ProcessStartInfo()
+            {
+                UseShellExecute = true,
+                FileName = "https://wowfreedom-rp.com/f/"
+            };
+            Process.Start(pStart);
         }
 
         private void btnStatus_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("https://mm.wowfreedom-rp.com/Home/Status");
+            var pStart = new ProcessStartInfo()
+            {
+                UseShellExecute = true,
+                FileName = "https://mm.wowfreedom-rp.com/Home/Status"
+            };
+            Process.Start(pStart);
         }
 
         private void OnFileDownloadStart(object? sender, FileDownloadStartedEventArgs e)
         {
             Dispatcher.Invoke(() =>
             {
-                txtProgress.Text = $"Downloading {e.FileName}...";
+                txtProgress.Text = $"Downloading {Path.GetFileName(e.FileName)}...";
                 var keys = _appState.LastManifest.Keys.ToList();
                 var progress = Math.Floor((double)keys.IndexOf(e.FileName) / keys.Count * 100);
                 pgbProgress.Value = progress;
@@ -135,9 +147,10 @@ namespace WpfApp1
 
             Dispatcher.Invoke(() =>
             {
-                txtProgress.Text = $"Verifying {e.FileName}...";
+                txtProgress.Text = $"Verifying {Path.GetFileName(e.FileName)}...";
+                var key = e.FileName.Substring(_appState.InstallPath!.Length + 1);
                 var keys = _appState.LastManifest.Keys.ToList();
-                var progress = Math.Floor((double)keys.IndexOf(e.FileName) / keys.Count * 100);
+                var progress = Math.Floor((double)keys.IndexOf(key) / keys.Count * 100);
                 pgbProgress.Value = progress;
             });
         }
@@ -154,7 +167,31 @@ namespace WpfApp1
         {
             btnMain.IsEnabled = true;
             pgbProgress.Visibility = Visibility.Hidden;
-            txtProgress.Text = "Oops! An error occured during download!";
+            if (e.Exception is AntiTamperingException)
+            {
+                txtProgress.Text = "Could not validate download. Please contact a dev for help.";
+            } else
+            {             
+                txtProgress.Text = "An error occured during download. Please try again.";
+            }
+        }
+
+        private void MenuGrid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                DragMove();
+            }
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void btnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState= WindowState.Minimized;
         }
     }
 }

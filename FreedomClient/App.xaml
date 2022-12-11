@@ -3,45 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:WpfApp1">
     <Application.Resources>
-        <ImageBrush x:Key="ButtonNormal" ImageSource="assets/btn_normal.png"></ImageBrush>
-        <ImageBrush x:Key="ButtonDisabled" ImageSource="assets/btn_disabled.png"></ImageBrush>
-        <ImageBrush x:Key="ButtonHighLight" ImageSource="assets/btn_highlight.png"></ImageBrush>
-        <ImageBrush x:Key="GrungeTexture" ImageSource="assets/Grunge_v_by_struckdumb.jpg"></ImageBrush>
-        <Style TargetType="Button">
-            <Setter Property="Width" Value="200"/>
-            <Setter Property="Height" Value="55"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="{StaticResource ButtonNormal}"/>
-            <Setter Property="FontSize" Value="24"/>
-            <Setter Property="TextBlock.LineHeight" Value="36"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontFamily" Value="./assets/#Morpheus"/>
-            <Setter Property="TextBlock.Effect">
-                <Setter.Value>
-                    <DropShadowEffect/>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Grid Background="{TemplateBinding Background}">
-                            <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource ButtonHighLight}"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource ButtonHighLight}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="{StaticResource ButtonDisabled}"/>
-                                <Setter Property="Foreground" Value="Gray"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary x:Name="icons" Source="assets/icons.xaml"/>
+                <ResourceDictionary x:Name="styles" Source="styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

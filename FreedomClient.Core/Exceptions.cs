@@ -6,25 +6,25 @@ using System.Threading.Tasks;
 
 namespace FreedomClient.Core
 {
-    internal class AntiTamperingException: Exception
+    public class AntiTamperingException: Exception
     {
-        internal AntiTamperingException(string message) : base(message) { }
+        public AntiTamperingException(string message) : base(message) { }
     }
 
-    internal class InvalidManifestException : AntiTamperingException
+    public class InvalidManifestException : AntiTamperingException
     {
-        internal InvalidManifestException() : base("Manifest was not in the expected format.") { }
-    }
-
-
-    internal class TamperedManifestException : AntiTamperingException
-    {
-        internal TamperedManifestException() : base("Signature does not match with file contents of manifest.") { }
+        public InvalidManifestException() : base("Manifest was not in the expected format.") { }
     }
 
 
-    internal class TamperedFileException: AntiTamperingException
+    public class TamperedManifestException : AntiTamperingException
     {
-        internal TamperedFileException(string fileName) : base($"SHA1 hash for {fileName} does not match with the hash in the manifest.") { }
+        public TamperedManifestException() : base("Signature does not match with file contents of manifest.") { }
+    }
+
+
+    public class TamperedFileException: AntiTamperingException
+    {
+        public TamperedFileException(string fileName) : base($"SHA1 hash for {fileName} does not match with the hash in the manifest.") { }
     }
 }
