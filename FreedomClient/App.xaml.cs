@@ -8,7 +8,7 @@ using FreedomClient.Infrastructure;
 using FreedomClient.Core;
 using Newtonsoft.Json;
 
-namespace WpfApp1
+namespace FreedomClient
 {
     /// <summary>
     /// Interaction logic for App.xaml

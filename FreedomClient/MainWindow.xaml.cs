@@ -2,16 +2,13 @@
 using FreedomClient.Infrastructure;
 using Ookii.Dialogs.Wpf;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 
-namespace WpfApp1
+namespace FreedomClient
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -43,25 +40,50 @@ namespace WpfApp1
                 btnMain.Content = "Launch";
                 btnMain.IsEnabled = false;
                 txtProgress.Text = "Checking for updates...";
-                VerifyFiles();
+                CheckForUpdates();
             }
         }
 
 
-        private async void VerifyFiles()
+        private async void CheckForUpdates()
         {
             var updateReady = await _fileClient.CheckForUpdates(_appState.LastManifest, _downloadToken);
-            Dictionary<string, string> manifest;
             if (updateReady)
             {
                 await Dispatcher.BeginInvoke(() => { txtProgress.Text = "Updating..."; });
-                manifest = await _fileClient.GetManifest(_downloadToken);
-            } else
-            {
-                await Dispatcher.BeginInvoke(() => { txtProgress.Text = "Verifying file integrity..."; });
-                manifest = _appState.LastManifest;
+                var manifest = await _fileClient.GetManifest(_downloadToken);
+                await _fileClient.VerifyFiles(manifest, _appState.InstallPath!, _downloadToken);
             }
+            _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
+            await Dispatcher.BeginInvoke(() =>
+            {
+                pgbProgress.Value = 100;
+                txtProgress.Text = "Ready to launch!";
+                btnMain.IsEnabled = true;
+            });
+        }
+
+        public async void VerifyInstall(bool completeReset = false)
+        {
+            await Dispatcher.BeginInvoke(() => {
+                btnMain.IsEnabled = false;
+                txtProgress.Text = "Verifying mandatory files integrity..."; 
+            });
+            var manifest = _appState.LastManifest;
             await _fileClient.VerifyFiles(manifest, _appState.InstallPath!, _downloadToken);
+
+            if (completeReset)
+            {
+                await Dispatcher.BeginInvoke(() => { txtProgress.Text = "Removing files not included with install..."; });
+                foreach (var file in Directory.EnumerateFiles(_appState.InstallPath!, "*", SearchOption.AllDirectories))
+                {
+                    var key = file.Substring(_appState.InstallPath!.Length + 1).Replace("\\", "/");
+                    if (!manifest.ContainsKey(key))
+                    {
+                        File.Delete(file);
+                    }
+                }
+            }
             await Dispatcher.BeginInvoke(() =>
             {
                 pgbProgress.Value = 100;
@@ -192,6 +214,14 @@ namespace WpfApp1
         private void btnMinimize_Click(object sender, RoutedEventArgs e)
         {
             WindowState= WindowState.Minimized;
+        }
+
+        private void btnSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new SettingsWindow(this, _appState);
+            window.Owner = this;
+            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            window.ShowDialog();
         }
     }
 }

@@ -7,6 +7,61 @@
     <ImageBrush x:Key="ButtonDisabled" ImageSource="assets/images/btn_disabled.png"></ImageBrush>
     <ImageBrush x:Key="ButtonHighLight" ImageSource="assets/images/btn_highlight.png"></ImageBrush>
 
+    <Style x:Key="SettingsTextStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+        <Setter Property="TextTrimming" Value="None"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontFamily" Value="./assets/fonts/#Friz Quadrata Std"/>
+    </Style>
+    <SolidColorBrush x:Key="TextBox.MouseOver.Border" Color="#AF7EB4EA"/>
+    <SolidColorBrush x:Key="TextBox.Focus.Border" Color="#AF569DE5"/>
+    <Style x:Key="MainTextBoxStyle" TargetType="{x:Type TextBox}">
+        <Setter Property="Background" Value="#3F000000"/>
+        <Setter Property="BorderBrush" Value="#8F000000"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="AllowDrop" Value="true"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TextBox}">
+                    <Border x:Name="border" 
+                            Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            CornerRadius="4"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
+                                      VerticalAlignment="Center" FontFamily="./assets/fonts/#Friz Quadrata Std" Margin="5,0,0,0"
+                                      />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.MouseOver.Border}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="true">
+                            <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.Focus.Border}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsInactiveSelectionHighlightEnabled" Value="true"/>
+                    <Condition Property="IsSelectionActive" Value="false"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="SelectionBrush" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
     <Style x:Key="BigButton" TargetType="Button">
         <Setter Property="Width" Value="200"/>
         <Setter Property="Height" Value="55"/>
