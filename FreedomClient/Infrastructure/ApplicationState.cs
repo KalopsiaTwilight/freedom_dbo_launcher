@@ -19,14 +19,14 @@ namespace FreedomClient.Infrastructure
         public event EventHandler<ApplicationLoadState?>? ApplicationLoadStateChanged;
         public ApplicationState()
         {
-            LastManifest = new Dictionary<string, string>();
+            LastManifest = new DownloadManifest();
             Version = Assembly.GetExecutingAssembly().GetName().Version!.ToString();
             LoadState = ApplicationLoadState.NotInstalled;
         }
 
         public string? InstallPath { get; set; }
 
-        public Dictionary<string, string> LastManifest { get; set; }
+        public DownloadManifest LastManifest { get; set; }
 
         public string Version { get; set; }
 

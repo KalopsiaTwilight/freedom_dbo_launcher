@@ -8,21 +8,25 @@ namespace FreedomClient.Core
 {
     public class FileDownloadStartedEventArgs : EventArgs
     {
-        public string FileName { get; set; }
+        public DownloadManifestEntry Entry { get; set; }
+        public string FilePath { get; set; }
 
-        public FileDownloadStartedEventArgs(string fileName)
+        public FileDownloadStartedEventArgs(DownloadManifestEntry entry, string filename)
         {
-            FileName = fileName;
+            Entry = entry;
+            FilePath = filename;
         }
     }
 
     public class FileDownloadCompletedEventArgs : EventArgs
     {
-        public string FileName { get; set; }
+        public DownloadManifestEntry Entry { get; set; }
+        public string FilePath { get; set; }
 
-        public FileDownloadCompletedEventArgs(string fileName)
+        public FileDownloadCompletedEventArgs(DownloadManifestEntry entry, string filename)
         {
-            FileName = fileName;
+            Entry = entry;
+            FilePath = filename;
         }
     }
 
@@ -52,6 +56,18 @@ namespace FreedomClient.Core
         public ExceptionDuringDownloadEventArgs(Exception exception)
         {
             Exception = exception; 
+        }
+    }
+
+    public class FileDownloadProgressEventArgs: EventArgs
+    {
+        public long TotalBytesRead { get; set; }
+        public DownloadManifestEntry Entry { get; set; }
+
+        public FileDownloadProgressEventArgs(DownloadManifestEntry entry, long totalBytesRead)
+        {
+            Entry = entry;
+            TotalBytesRead = totalBytesRead;
         }
     }
 }

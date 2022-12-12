@@ -77,8 +77,16 @@ namespace FreedomClient
                 using (var reader = new StreamReader(appStatePath))
                 {
                     var txt = reader.ReadToEnd();
-                    ApplicationState = JsonConvert.DeserializeObject<ApplicationState>(txt) ?? new ApplicationState();
+                    try
+                    {
+                        ApplicationState = JsonConvert.DeserializeObject<ApplicationState>(txt);
+                    } catch { }
+                    ApplicationState ??= new ApplicationState();
+                    
+                    
                     // TODO: Possible place to perform version upgrades
+
+
                     ApplicationState.Version = new ApplicationState().Version;
                     // Check if install path still exists
                     if (!Directory.Exists(ApplicationState.InstallPath))

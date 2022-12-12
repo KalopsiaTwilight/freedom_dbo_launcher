@@ -1,28 +1,29 @@
-﻿using Org.BouncyCastle.Cms;
+﻿using FreedomClient.Core;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 
 namespace FreedomManifestTool
 {
     internal class ManifestGenerator
     {
-        public static void GenerateSignedManifest(string workingDirectory, string certificatePath, string privateKeyPath, string privateKeyPassword)
+        public static void GenerateSignedManifest(string workingDirectory, string certificatePath, string privateKeyPath, string privateKeyPassword, DownloadSourceConfiguration downloadConfig)
         {
-            GenerateManifest(workingDirectory);
+            GenerateManifest(workingDirectory, downloadConfig);
             GenerateSignature(workingDirectory, certificatePath, privateKeyPath, privateKeyPassword);
         }
 
         // Generate manifest.json file by SHA1 hashing all files in the working directory
-        private static void GenerateManifest(string workingDirectory)
+        private static void GenerateManifest(string workingDirectory, DownloadSourceConfiguration downloadConfig)
         {
-            var manifest = new Dictionary<string, string>();
+            var manifest = new DownloadManifest();
             var hashAlgo = SHA1.Create();
-            // Search through subdirectories as well for localisation texts
+            // Search through all files in the subdirectory
             foreach (var file in Directory.EnumerateFiles(workingDirectory, "*", SearchOption.AllDirectories))
             {
                 // Replace windows \'s in paths with unix /'s for platform compatability
@@ -34,9 +35,25 @@ namespace FreedomManifestTool
                 for (int i = 0; i < hashBytes.Length; i++)
                     hashResult.Append(hashBytes[i].ToString("x2"));
                 var hash = hashResult.ToString();
-                manifest.Add(key, hash);
+
+                var manifestEntry = new DownloadManifestEntry()
+                {
+                    Hash = hash,
+                    FileSize = new FileInfo(file).Length,
+                    Source = downloadConfig.FileSources.ContainsKey(key) 
+                        ? downloadConfig.DownloadSources[downloadConfig.FileSources[key]] 
+                        : new DirectHttpDownloadSource(Path.Join(downloadConfig.HttpDownloadSourceUri, key))
+                };
+
+                manifest.Add(key, manifestEntry);
             }
-            var json = JsonSerializer.Serialize(manifest);
+            var jsonConvertSettings = new JsonSerializerSettings
+            {
+                //TypeNameHandling = TypeNameHandling.All,
+
+            };
+            jsonConvertSettings.Converters.Add(new DownloadSourceJsonConverter());
+            var json = JsonConvert.SerializeObject(manifest, jsonConvertSettings);
             File.WriteAllText(Path.Combine(workingDirectory, "manifest.json"), json);
         }
 

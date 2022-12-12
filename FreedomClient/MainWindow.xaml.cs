@@ -149,10 +149,9 @@ namespace FreedomClient
         {
             Dispatcher.Invoke(() =>
             {
-                txtProgress.Text = $"Downloading {Path.GetFileName(e.FileName)}...";
-                var keys = _appState.LastManifest.Keys.ToList();
-                var progress = Math.Floor((double)keys.IndexOf(e.FileName) / keys.Count * 100);
-                pgbProgress.Value = progress;
+                txtProgress.Text = $"Downloading {Path.GetFileName(e.FilePath)}...";
+                //var progress = Math.Floor((double)_appState.LastManifest.IndexOf(e) / _appState.LastManifest.Count * 100);
+                //pgbProgress.Value = progress;
             });
         }
         private void OnFileDownloadCompleted(object? sender, FileDownloadCompletedEventArgs e)
@@ -160,7 +159,7 @@ namespace FreedomClient
 
             Dispatcher.Invoke(() =>
             {
-                txtProgress.Text = $"Downloaded {e.FileName}!";
+                txtProgress.Text = $"Downloaded {Path.GetFileName(e.FilePath)}!";
             });
         }
 

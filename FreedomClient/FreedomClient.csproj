@@ -25,10 +25,15 @@
     <None Remove="assets\images\Grunge_v_by_struckdumb.jpg" />
     <None Remove="assets\images\HighRes Parchment.jpg" />
     <None Remove="assets\MORPHEUS.TTF" />
+    <None Remove="data\google-credentials.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="assets\freedom_icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="data\google-credentials.json" />
   </ItemGroup>
 
   <ItemGroup>

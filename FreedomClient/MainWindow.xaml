@@ -45,7 +45,7 @@
             </TextBlock>
         </Grid>
 
-        <Border Grid.Row="2" CornerRadius="2" BorderBrush="#1A1D1A" BorderThickness="1"  Margin="10,10,10,10" >
+        <Border Grid.Row="2" CornerRadius="2" BorderBrush="#1A1D1A" BorderThickness="1"  Margin="10" >
             <Grid Background="#1A1D1A">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
