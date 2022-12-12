@@ -1,0 +1,1 @@
+dotnet publish .\FreedomClient\FreedomClient.csproj -r win-x64 -c Release /p:PublishSingleFile=true -o publish

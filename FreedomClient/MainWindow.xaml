@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:FreedomClient.Controls"
         mc:Ignorable="d"
         Title="Freedom WoW" Height="450" Width="800" Background="#1A1D1A" 
-        WindowStyle="None">
+        WindowStyle="None" ResizeMode="CanResizeWithGrip" AllowsTransparency="True">
     <Grid MouseDown="MenuGrid_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="32"></RowDefinition>
