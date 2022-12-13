@@ -13,7 +13,6 @@ namespace FreedomClient.Core
                 return new GoogleDriveDownloadSource()
                 {
                     GoogleDriveFileId = jObject.Property(nameof(GoogleDriveDownloadSource.GoogleDriveFileId)).Value.Value<string>(),
-                    FileName = jObject.Property(nameof(GoogleDriveDownloadSource.FileName)).Value.Value<string>()
                 };
             }
             if (jObject.Property(nameof(DirectHttpDownloadSource.SourceUri)) != null)
@@ -30,8 +29,6 @@ namespace FreedomClient.Core
                 writer.WriteStartObject();
                 writer.WritePropertyName(nameof(GoogleDriveDownloadSource.GoogleDriveFileId));
                 writer.WriteValue(driveSource.GoogleDriveFileId);
-                writer.WritePropertyName(nameof(GoogleDriveDownloadSource.FileName));
-                writer.WriteValue(driveSource.FileName);
                 writer.WriteEndObject();
                 return;
             } else if (value is DirectHttpDownloadSource directHttpDownloadSource)

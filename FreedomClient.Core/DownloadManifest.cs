@@ -38,6 +38,5 @@ namespace FreedomClient.Core
         [JsonIgnore]
         public override string Id { get => GoogleDriveFileId; }
         public string GoogleDriveFileId { get; set; }
-        public string FileName { get; set; }
     }
 }

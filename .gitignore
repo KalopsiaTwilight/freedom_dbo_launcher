@@ -1,3 +1,6 @@
+#Ignore google credentials
+google-credentials.json
+
 # Ignore launchsettings to prevent secret leaking
 launchsettings.json
 

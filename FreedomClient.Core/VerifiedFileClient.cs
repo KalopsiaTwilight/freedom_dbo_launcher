@@ -1,25 +1,17 @@
 ﻿using Google.Apis.Auth.OAuth2;
-using Google.Apis.Download;
 using Google.Apis.Drive.v3;
-using Google.Apis.Http;
 using Google.Apis.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Cms;
-using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
-using System;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Net.Http;
 using System.Reflection;
-using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
 
 namespace FreedomClient.Core
@@ -220,10 +212,8 @@ namespace FreedomClient.Core
 
         private async Task DownloadGoogleDriveFile(GoogleDriveDownloadSource source, string outputPath, CancellationToken cancellationToken, Action<long>? reportCallback = null)
         {
-            var tempFilePath = Path.Combine(Path.GetTempPath(), source.FileName);
+            //var tempFilePath = Path.Combine(Path.GetTempPath(), source.FileName);
             // Check if archive file is already downloaded
-            if (!File.Exists(tempFilePath))
-            {
                 var credential = GoogleCredential
                     .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
                     .CreateScoped(DriveService.Scope.Drive);
@@ -236,7 +226,7 @@ namespace FreedomClient.Core
                 //request.AcknowledgeAbuse = true;
                 request.MediaDownloader.ProgressChanged +=
                     progress => reportCallback?.Invoke(progress.BytesDownloaded);
-                using (var fileStream = File.Create(tempFilePath))
+                using (var fileStream = File.Create(outputPath))
                 {
                     var progress = await request.DownloadAsync(fileStream);
 
@@ -245,8 +235,8 @@ namespace FreedomClient.Core
                         throw new InvalidDataException();
                     }
                 }
-            }
-            ExtractFileFromArchive(tempFilePath, outputPath);
+
+            //ExtractFileFromArchive(tempFilePath, outputPath);
         }
 
         private void ExtractFileFromArchive(string archivePath, string outputPath)
@@ -270,8 +260,8 @@ namespace FreedomClient.Core
                 case DirectHttpDownloadSource httpSource: return Task.CompletedTask;
                 case GoogleDriveDownloadSource driveSource:
                     {
-                        var tempFilePath = Path.Combine(Path.GetTempPath(), driveSource.FileName);
-                        File.Delete(tempFilePath);
+                        //var tempFilePath = Path.Combine(Path.GetTempPath(), driveSource.FileName);
+                        //File.Delete(tempFilePath);
                         return Task.CompletedTask;
                     }
                 default: throw new ArgumentException($"Unable to download source type: {downloadSource.GetType().Name}", nameof(downloadSource));

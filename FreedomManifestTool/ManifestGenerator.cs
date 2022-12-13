@@ -40,18 +40,14 @@ namespace FreedomManifestTool
                 {
                     Hash = hash,
                     FileSize = new FileInfo(file).Length,
-                    Source = downloadConfig.FileSources.ContainsKey(key) 
-                        ? downloadConfig.DownloadSources[downloadConfig.FileSources[key]] 
+                    Source = downloadConfig.DownloadSources.ContainsKey(key)
+                        ? downloadConfig.DownloadSources[key]
                         : new DirectHttpDownloadSource(Path.Join(downloadConfig.HttpDownloadSourceUri, key))
                 };
 
                 manifest.Add(key, manifestEntry);
             }
-            var jsonConvertSettings = new JsonSerializerSettings
-            {
-                //TypeNameHandling = TypeNameHandling.All,
-
-            };
+            var jsonConvertSettings = new JsonSerializerSettings();
             jsonConvertSettings.Converters.Add(new DownloadSourceJsonConverter());
             var json = JsonConvert.SerializeObject(manifest, jsonConvertSettings);
             File.WriteAllText(Path.Combine(workingDirectory, "manifest.json"), json);
