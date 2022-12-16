@@ -156,7 +156,7 @@ namespace FreedomClient.Core
             var fileGroups = manifest.GroupBy(x => x.Value.Source.Id);
             foreach (var group in fileGroups)
             {
-                foreach (var manifestEntry in manifest)
+                foreach (var manifestEntry in group)
                 {
                     var filePath = manifestEntry.Key;
                     EnsureDirectoriesExist(manifestEntry.Key, installPath);
