@@ -403,7 +403,6 @@ namespace FreedomClient
 
         private void OnExceptionDuringDownload(object? sender, ExceptionDuringDownloadEventArgs e)
         {
-            btnMain.IsEnabled = true;
             if (e.Exception is OperationCanceledException)
             {
                 // No need to do anything
@@ -414,19 +413,24 @@ namespace FreedomClient
             }
             else
             {
+                btnMain.IsEnabled = true;
                 txtProgress.Text = "An error occured during download. Please try again.";
             }
         }
 
         private void OnExceptionDuringVerification(object? sender, ExceptionDuringVerifyEventArgs e)
         {
-            btnMain.IsEnabled = true;
             if (e.Exception is OperationCanceledException)
             {
                 // No need to do anything
             }
+            else if (e.Exception is AntiTamperingException)
+            {
+                txtProgress.Text = "Could not validate download. Please contact a dev for help.";
+            }
             else
             {
+                btnMain.IsEnabled = true;
                 txtProgress.Text = "An error occured during verification of a file. Please try again.";
             }
         }
