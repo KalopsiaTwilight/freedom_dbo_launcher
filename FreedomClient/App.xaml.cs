@@ -39,7 +39,7 @@ namespace FreedomClient
         {
             services.AddSingleton(ApplicationState!);
             services.AddSingleton(typeof(MainWindow));
-            services.AddTransient(typeof(ILogger), typeof(FreedomClientLogger));
+            services.AddSingleton(typeof(ILogger), typeof(FreedomClientLogger));
             services.AddTransient<VerifiedFileClient>();
             services.AddHttpClient();
         }
@@ -76,10 +76,12 @@ namespace FreedomClient
             {
                 using (var reader = new StreamReader(appStatePath))
                 {
+                    var settings = new JsonSerializerSettings();
+                    settings.Converters.Add(new DownloadSourceJsonConverter());
                     var txt = reader.ReadToEnd();
                     try
                     {
-                        ApplicationState = JsonConvert.DeserializeObject<ApplicationState>(txt);
+                        ApplicationState = JsonConvert.DeserializeObject<ApplicationState>(txt, settings);
                     } catch { }
                     ApplicationState ??= new ApplicationState();
                     
@@ -105,7 +107,10 @@ namespace FreedomClient
 
         private void SaveApplicationState()
         {
-            var json = JsonConvert.SerializeObject(ApplicationState, Formatting.Indented);
+            var settings = new JsonSerializerSettings();
+            settings.Formatting= Formatting.Indented;
+            settings.Converters.Add(new DownloadSourceJsonConverter());
+            var json = JsonConvert.SerializeObject(ApplicationState, settings);
             var appStatePath = GetApplicationStatePath();
             if (!Directory.Exists(appStatePath))
             {

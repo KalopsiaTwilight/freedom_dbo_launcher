@@ -8,6 +8,7 @@
         Title="Settings" Height="250" Width="400"
         Background="#1A1D1A" 
         WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
+        BorderBrush="#BF000000" BorderThickness="1"
         >
     <Grid MouseDown="Grid_MouseDown">
         <Grid.RowDefinitions>

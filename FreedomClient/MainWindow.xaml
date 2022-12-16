@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:FreedomClient.Controls"
         mc:Ignorable="d"
         Title="Freedom WoW" Height="450" Width="800" Background="#1A1D1A" 
-        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True">
+        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
+        BorderBrush="#BF000000" BorderThickness="1">
     <Grid MouseDown="MenuGrid_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="32"></RowDefinition>
@@ -32,11 +33,11 @@
             </Button>
         </Grid>
         <Grid Grid.Row="0" Grid.RowSpan="2">
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36" FontFamily="./assets/fonts/#Morpheus" Text="FREEDOM WOW">
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="56" FontFamily="./assets/fonts/#Morpheus" Text="FREEDOM WOW">
                 <TextBlock.Foreground>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                        <GradientStop Color="#FFEFC917" Offset="0"/>
-                        <GradientStop Color="#FF372E08" Offset="0.88"/>
+                        <GradientStop Color="#FFFF9C00" Offset="0"/>
+                        <GradientStop Color="#FFFFCC00" Offset="1"/>
                     </LinearGradientBrush>
                 </TextBlock.Foreground>
                 <TextBlock.Effect>
@@ -88,20 +89,35 @@
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
             <TextBlock 
-                Margin="10,0,0,30" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Margin="40,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"
                 Foreground="White" FontSize="16" FontFamily="./assets/fonts/#Friz Quadrata Std"
                 Name="txtProgress">
             </TextBlock>
             <ProgressBar Style="{DynamicResource ProgressBarStyle}" 
-                Height="15" Grid.Column="0" Margin="40,30,0,10"
-                Minimum="0" Maximum="100"
+                Height="15" Grid.Column="0" Margin="40,0,0,5" VerticalAlignment="Center"
+                Minimum="0" Maximum="100" Value="0"
                 Name="pgbProgress">
                 <ProgressBar.Effect>
                     <DropShadowEffect/>
                 </ProgressBar.Effect>
             </ProgressBar>
+            <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="490" Height="20" 
+                Margin="40,0,0,5">
+                <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Center"
+                Foreground="White" FontSize="16" FontFamily="./assets/fonts/#Friz Quadrata Std"
+                Name="txtOverallProgress">
+                </TextBlock>
+                <Button Name="btnCancelDownload" Style="{StaticResource CloseButtonStyle}" 
+                        HorizontalAlignment="Right" 
+                        Height="20" Width="20"
+                        Visibility="Hidden"
+                    ToolTip="Cancel Operation" Click="btnCancelDownload_Click">
+                    <Image Height="20" Width="20" Source="{StaticResource xmark_solidDrawingImage}"/>
+                </Button>
+            </Grid>
+
             <Button Style="{StaticResource BigButton}"
-                Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right" Margin="0,0,20,0"
+                Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,20,0"
                 Name="btnMain"
                 Click="btnMain_Click">
                 Launch

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
+using System;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
@@ -20,14 +21,20 @@ namespace FreedomClient.Core
     {
         private readonly IHttpClientFactory _clientFactory;
         private readonly HashAlgorithm _hashAlgo;
-        public Stopwatch DownloadTimer { get; private set; }
 
         public event EventHandler<FileDownloadStartedEventArgs>? FileDownloadStarted;
+        public event EventHandler<FileDownloadProgressEventArgs>? FileDownloadProgress;
         public event EventHandler<FileDownloadCompletedEventArgs>? FileDownloadCompleted;
+        public event EventHandler<ExceptionDuringDownloadEventArgs>? ExceptionDuringDownload;
+        public event EventHandler<ManifestDownloadStartedEventArgs>? ManifestDownloadStarted;
+        public event EventHandler<ManifestDownloadCompletedEventArgs>? ManifestDownloadCompleted;
         public event EventHandler<FileVerifyStartedEventArgs>? FileVerifyStarted;
         public event EventHandler<FileVerifyCompletedEventArgs>? FileVerifyCompleted;
-        public event EventHandler<ExceptionDuringDownloadEventArgs>? ExceptionDuringDownload;
-        public event EventHandler<FileDownloadProgressEventArgs>? FileDownloadProgress;
+        public event EventHandler<FileVerifyProgressEventArgs>? FileVerifyProgress;
+        public event EventHandler<ExceptionDuringVerifyEventArgs>? ExceptionDuringVerify;
+
+        public Stopwatch DownloadTimer { get; private set; }
+
 
         public VerifiedFileClient(IHttpClientFactory clientFactory)
         {
@@ -43,12 +50,12 @@ namespace FreedomClient.Core
             {
                 return true;
             }
-            foreach(var keypair in manifest)
+            foreach (var keypair in manifest)
             {
-                if (!currentManifest.ContainsKey(keypair.Key) || manifest[keypair.Key] != keypair.Value)
+                if (!currentManifest.ContainsKey(keypair.Key) || currentManifest[keypair.Key] != keypair.Value)
                 {
                     return true;
-                } 
+                }
             }
             return false;
         }
@@ -68,8 +75,9 @@ namespace FreedomClient.Core
                 }
                 try
                 {
-                    //await VerifyFile(outputPath, entry.Value.Hash, cancellationToken);
-                } catch (TamperedFileException)
+                    await VerifyFile(entry.Value, outputPath, cancellationToken);
+                }
+                catch (TamperedFileException)
                 {
                     toRedownload.Add(entry.Key, entry.Value);
                 }
@@ -78,7 +86,8 @@ namespace FreedomClient.Core
             try
             {
                 await DownloadManifestFiles(toRedownload, installDirectory, cancellationToken);
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 ExceptionDuringDownload?.Invoke(this, new ExceptionDuringDownloadEventArgs(ex));
                 throw;
@@ -142,12 +151,12 @@ namespace FreedomClient.Core
         #region File Downloading
         private async Task DownloadManifestFiles(DownloadManifest manifest, string installPath, CancellationToken cancellationToken)
         {
-            DownloadTimer.Start();
-            // Group files by url to download archived files and clean up afterwards
+            ManifestDownloadStarted?.Invoke(this, new ManifestDownloadStartedEventArgs(manifest));
+            // Group files by id to process archives in one go
             var fileGroups = manifest.GroupBy(x => x.Value.Source.Id);
-            foreach(var group in fileGroups)
+            foreach (var group in fileGroups)
             {
-                foreach(var manifestEntry in group)
+                foreach (var manifestEntry in manifest)
                 {
                     var filePath = manifestEntry.Key;
                     EnsureDirectoriesExist(manifestEntry.Key, installPath);
@@ -157,97 +166,130 @@ namespace FreedomClient.Core
                     await DownloadFile(manifestEntry.Value, outputPath, cancellationToken);
 
                     // Verify SHA1 Hash for file
-                    await VerifyFile(outputPath, manifestEntry.Value.Hash, cancellationToken);
-
+                    await VerifyFile(manifestEntry.Value, outputPath, cancellationToken);
                 }
                 // Clean up files for this source
                 await CleanupDownloadSource(group.First().Value.Source, cancellationToken);
             }
-            DownloadTimer.Stop();
+
+            ManifestDownloadCompleted?.Invoke(this, new ManifestDownloadCompletedEventArgs(manifest));
         }
 
         private async Task DownloadFile(DownloadManifestEntry entry, string downloadPath, CancellationToken cancellationToken)
         {
+            DownloadTimer.Reset();
             FileDownloadStarted?.Invoke(this, new FileDownloadStartedEventArgs(entry, downloadPath));
-            Action<long> progressCallback = (read) => FileDownloadProgress?.Invoke(this, new FileDownloadProgressEventArgs(entry, read));
-            switch (entry.Source)
-            {
-                case DirectHttpDownloadSource httpSource: await DownloadHttpFile(httpSource, downloadPath, cancellationToken, progressCallback); break;
-                case GoogleDriveDownloadSource driveSource: await DownloadGoogleDriveFile(driveSource, downloadPath, cancellationToken, progressCallback); break;
-                default: throw new ArgumentException($"Unable to download source type: {entry.Source.GetType().Name}", nameof(entry));
-            };
-            FileDownloadCompleted?.Invoke(this, new FileDownloadCompletedEventArgs(entry, downloadPath));
-        }
-
-        private async Task DownloadHttpFile(DirectHttpDownloadSource source, string outputPath, CancellationToken cancellationToken, Action<long>? reportCallback = null)
-        {
+            DownloadTimer.Start();
             try
             {
-                var bufferSize = 4096;
-                var httpClient = _clientFactory.CreateClient();
-                using (HttpResponseMessage response = await httpClient.GetAsync(source.Uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
-                using (Stream streamToReadFrom = await response.Content.ReadAsStreamAsync())
+                Action<long> progressCallback = (read) => FileDownloadProgress?.Invoke(this, new FileDownloadProgressEventArgs(entry, read, downloadPath));
+                switch (entry.Source)
                 {
-                    using (Stream streamToWriteTo = File.Open(outputPath, FileMode.Create))
-                    {
-                        var buffer = new byte[bufferSize];
-                        int bytesRead;
-                        long totalRead = 0;
-                        while((bytesRead = await streamToReadFrom.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
-                        {
-                            await streamToWriteTo.WriteAsync(buffer, 0, bytesRead, cancellationToken);
-                            cancellationToken.ThrowIfCancellationRequested();
-                            totalRead += bytesRead;
-                            reportCallback?.Invoke(totalRead);
-                        }
-                    }
-                }
+                    case DirectHttpDownloadSource httpSource: await DownloadHttpFile(httpSource, downloadPath, cancellationToken, progressCallback); break;
+                    case GoogleDriveDownloadSource driveSource: await DownloadGoogleDriveFile(driveSource, downloadPath, cancellationToken, progressCallback); break;
+                    case GoogleDriveArchiveDownloadSource driveArchiveSource: await DownloadGoogleDriveArchiveFile(driveArchiveSource, downloadPath, cancellationToken, progressCallback); break;
+                    default: throw new ArgumentException($"Unable to download source type: {entry.Source.GetType().Name}", nameof(entry));
+                };
             }
             catch (Exception e)
             {
                 ExceptionDuringDownload?.Invoke(this, new ExceptionDuringDownloadEventArgs(e));
                 throw;
             }
+            DownloadTimer.Stop();
+            FileDownloadCompleted?.Invoke(this, new FileDownloadCompletedEventArgs(entry, downloadPath));
+        }
+
+        private async Task DownloadHttpFile(DirectHttpDownloadSource source, string outputPath, CancellationToken cancellationToken, Action<long>? reportCallback = null)
+        {
+            var bufferSize = 4096;
+            var httpClient = _clientFactory.CreateClient();
+            using (HttpResponseMessage response = await httpClient.GetAsync(source.Uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+            using (Stream streamToReadFrom = await response.Content.ReadAsStreamAsync())
+            {
+                using (Stream streamToWriteTo = File.Open(outputPath, FileMode.Create))
+                {
+                    var buffer = new byte[bufferSize];
+                    int bytesRead;
+                    long totalRead = 0;
+                    while ((bytesRead = await streamToReadFrom.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
+                    {
+                        await streamToWriteTo.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
+                        totalRead += bytesRead;
+                        reportCallback?.Invoke(totalRead);
+                    }
+                }
+            }
         }
 
         private async Task DownloadGoogleDriveFile(GoogleDriveDownloadSource source, string outputPath, CancellationToken cancellationToken, Action<long>? reportCallback = null)
         {
-            //var tempFilePath = Path.Combine(Path.GetTempPath(), source.FileName);
-            // Check if archive file is already downloaded
+            var credential = GoogleCredential
+                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
+                .CreateScoped(DriveService.Scope.Drive);
+            var service = new DriveService(new BaseClientService.Initializer()
+            {
+                ApplicationName = Constants.AppIdentifier,
+                HttpClientInitializer = credential
+            });
+            var request = service.Files.Get(source.GoogleDriveFileId);
+            request.AcknowledgeAbuse = true;
+            request.MediaDownloader.ProgressChanged +=
+                progress => reportCallback?.Invoke(progress.BytesDownloaded);
+            using (var fileStream = File.Create(outputPath))
+            {
+                var progress = await request.DownloadAsync(fileStream, cancellationToken);
+
+                if (progress.BytesDownloaded == 0)
+                {
+                    throw new InvalidDataException();
+                }
+            }
+        }
+
+        private async Task DownloadGoogleDriveArchiveFile(GoogleDriveArchiveDownloadSource source, string outputPath, CancellationToken cancellationToken, Action<long>? reportCallback = null)
+        {
+            // Check if archive is already downloaded...
+            var tempFilePath = Path.Combine(Path.GetTempPath(), source.GoogleDriveArchiveId);
+            if (!File.Exists(tempFilePath))
+            {
                 var credential = GoogleCredential
-                    .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
-                    .CreateScoped(DriveService.Scope.Drive);
+                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
+                .CreateScoped(DriveService.Scope.Drive);
                 var service = new DriveService(new BaseClientService.Initializer()
                 {
                     ApplicationName = Constants.AppIdentifier,
                     HttpClientInitializer = credential
                 });
-                var request = service.Files.Get(source.GoogleDriveFileId);
-                //request.AcknowledgeAbuse = true;
+                var request = service.Files.Get(source.GoogleDriveArchiveId);
+                request.AcknowledgeAbuse = true;
                 request.MediaDownloader.ProgressChanged +=
                     progress => reportCallback?.Invoke(progress.BytesDownloaded);
-                using (var fileStream = File.Create(outputPath))
+                using (var fileStream = File.Create(tempFilePath))
                 {
-                    var progress = await request.DownloadAsync(fileStream);
+                    var progress = await request.DownloadAsync(fileStream, cancellationToken);
 
                     if (progress.BytesDownloaded == 0)
                     {
                         throw new InvalidDataException();
                     }
                 }
-
-            //ExtractFileFromArchive(tempFilePath, outputPath);
+            }
+            ExtractFileFromArchive(tempFilePath, outputPath);
+           
         }
 
         private void ExtractFileFromArchive(string archivePath, string outputPath)
         {
             using (ZipArchive zip = ZipFile.Open(archivePath, ZipArchiveMode.Read))
             {
-                foreach(var entry in zip.Entries)
+                foreach (var entry in zip.Entries)
                 {
-                    if(entry.Name == Path.GetFileName(outputPath))
+                    if (outputPath.ToLower().Contains(entry.FullName.ToLower()))
                     {
-                        entry.ExtractToFile(outputPath);
+                        entry.ExtractToFile(outputPath, true);
+                        break;
                     }
                 }
             }
@@ -257,35 +299,70 @@ namespace FreedomClient.Core
         {
             switch (downloadSource)
             {
-                case DirectHttpDownloadSource httpSource: return Task.CompletedTask;
-                case GoogleDriveDownloadSource driveSource:
+                case GoogleDriveArchiveDownloadSource driveSource:
                     {
-                        //var tempFilePath = Path.Combine(Path.GetTempPath(), driveSource.FileName);
-                        //File.Delete(tempFilePath);
+                        var tempFilePath = Path.Combine(Path.GetTempPath(), driveSource.GoogleDriveArchiveId);
+                        File.Delete(tempFilePath);
                         return Task.CompletedTask;
                     }
-                default: throw new ArgumentException($"Unable to download source type: {downloadSource.GetType().Name}", nameof(downloadSource));
+                case GoogleDriveDownloadSource:
+                case DirectHttpDownloadSource: return Task.CompletedTask;
+                default: throw new ArgumentException($"Unable to clean up source type: {downloadSource.GetType().Name}", nameof(downloadSource));
             }
         }
         #endregion
 
         #region File Integrity
 
-        private async Task VerifyFile(string filePath, string validateHash, CancellationToken cancellationToken)
+        private async Task VerifyFile(DownloadManifestEntry entry, string filePath, CancellationToken cancellationToken)
         {
-            FileVerifyStarted?.Invoke(this, new FileVerifyStartedEventArgs(filePath));
-            byte[] hash;
-            using (var filestream = File.OpenRead(filePath))
+            FileVerifyStarted?.Invoke(this, new FileVerifyStartedEventArgs(entry, filePath));
+            try
             {
-                hash = await _hashAlgo.ComputeHashAsync(filestream, cancellationToken);
+                byte[] hash;
+                var buffersize = 1024 * 1024;
+
+                using (var filestream = File.OpenRead(filePath))
+                {
+                    byte[] readAheadBuffer = new byte[buffersize];
+                    byte[] buffer = new byte[buffersize];
+                    int readAheadBytesRead, bytesRead;
+                    long totalBytesRead = 0;
+                    readAheadBytesRead = await filestream.ReadAsync(readAheadBuffer, 0, readAheadBuffer.Length, cancellationToken);
+                    totalBytesRead += readAheadBytesRead;
+                    while (readAheadBytesRead > 0)
+                    {
+                        bytesRead = readAheadBytesRead;
+                        readAheadBuffer.CopyTo(buffer, 0);
+                        readAheadBytesRead = await filestream.ReadAsync(readAheadBuffer, 0, readAheadBuffer.Length, cancellationToken);
+                        totalBytesRead += readAheadBytesRead;
+
+                        if (readAheadBytesRead == 0)
+                        {
+                            _hashAlgo.TransformFinalBlock(buffer, 0, bytesRead);
+                        }
+                        else
+                        {
+                            _hashAlgo.TransformBlock(buffer, 0, bytesRead, buffer, 0);
+                        }
+                        FileVerifyProgress?.Invoke(this, new FileVerifyProgressEventArgs(entry, totalBytesRead, filePath));
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    hash = _hashAlgo.Hash!;
+                }
+                var reportedHash = StringToByteArrayFastest(entry.Hash);
+                if (!ByteArrayCompare(hash, reportedHash))
+                {
+                    File.Delete(filePath);
+                    throw new TamperedFileException(filePath);
+                }
+                FileVerifyCompleted?.Invoke(this, new FileVerifyCompletedEventArgs(entry, filePath));
             }
-            var reportedHash = StringToByteArrayFastest(validateHash);
-            if (!ByteArrayCompare(hash, reportedHash))
+            catch (Exception e)
             {
-                File.Delete(filePath);
-                throw new TamperedFileException(filePath);
+                ExceptionDuringVerify?.Invoke(this, new ExceptionDuringVerifyEventArgs(e));
+                throw;
             }
-            FileVerifyCompleted?.Invoke(this, new FileVerifyCompletedEventArgs(filePath));
         }
 
         static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
