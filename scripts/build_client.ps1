@@ -1,1 +1,1 @@
-dotnet publish .\FreedomClient\FreedomClient.csproj -r win-x64 -c Release /p:PublishSingleFile=true -o publish
+dotnet publish .\FreedomClient\FreedomClient.csproj -r win-x64 --self-contained -c Release /p:PublishSingleFile=true /p:PublishReadyToRun=true /p:IncludeNativeLibrariesForSelfExtract=true -o publish

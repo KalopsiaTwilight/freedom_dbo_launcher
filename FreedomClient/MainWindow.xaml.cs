@@ -72,8 +72,12 @@ namespace FreedomClient
             var updateReady = await _fileClient.CheckForUpdates(_appState.LastManifest, _downloadTokenSource.Token);
             if (updateReady)
             {
+                _appState.LoadState = ApplicationLoadState.CheckForUpdate;
                 _downloadTokenSource = new CancellationTokenSource();
-                await Dispatcher.BeginInvoke(() => { txtProgress.Text = "Updating..."; });
+                await Dispatcher.BeginInvoke(() => { 
+                    txtProgress.Text = "Updating...";
+                    btnMain.Content = "Install";
+                });
                 var manifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
                 _appState.LastManifest = manifest;
                 VerifyInstall();
@@ -81,6 +85,9 @@ namespace FreedomClient
             } 
             if(!CheckRequiredFilesExist(_appState.LastManifest))
             {
+                await Dispatcher.BeginInvoke(() => {
+                    btnMain.Content = "Install";
+                });
                 VerifyInstall();
                 return;
             }
@@ -108,6 +115,7 @@ namespace FreedomClient
 
         public async void VerifyInstall(bool completeReset = false)
         {
+            _appState.LoadState = ApplicationLoadState.VerifyingFiles;
             await Dispatcher.BeginInvoke(() =>
             {
                 btnMain.IsEnabled = false;
@@ -138,12 +146,14 @@ namespace FreedomClient
                 }
                 RemoveEmptyDirectores(_appState.InstallPath);
             }
+            _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
             await Dispatcher.BeginInvoke(() =>
             {
                 pgbProgress.Value = 100;
                 txtProgress.Text = "Ready to launch!";
                 txtOverallProgress.Text = "";
                 btnMain.IsEnabled = true;
+                btnMain.Content = "Launch";
             });
         }
 
@@ -153,7 +163,7 @@ namespace FreedomClient
         {
             btnMain.IsEnabled = false;
 
-            if (_appState.LoadState == ApplicationLoadState.NotInstalled)
+            if (_appState.LoadState != ApplicationLoadState.ReadyToLaunch)
             {
                 var folderDialog = new VistaFolderBrowserDialog();
                 if (folderDialog.ShowDialog() != true)
