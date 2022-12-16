@@ -150,6 +150,7 @@ namespace FreedomClient
             await Dispatcher.BeginInvoke(() =>
             {
                 pgbProgress.Value = 100;
+                btnCancelDownload.Visibility = Visibility.Hidden;
                 txtProgress.Text = "Ready to launch!";
                 txtOverallProgress.Text = "";
                 btnMain.IsEnabled = true;
@@ -196,6 +197,7 @@ namespace FreedomClient
                 pgbProgress.Value = 100;
                 txtProgress.Text = "Successfully installed! Client is now ready to launch";
                 txtOverallProgress.Text = "";
+                btnCancelDownload.Visibility = Visibility.Hidden;
                 btnMain.Content = "Launch";
                 btnMain.IsEnabled = true;
                 _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
