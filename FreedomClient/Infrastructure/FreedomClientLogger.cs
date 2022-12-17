@@ -6,10 +6,9 @@ using FreedomClient.Core;
 
 namespace FreedomClient.Infrastructure
 {
-    public class FreedomClientLogger : ILogger, IDisposable
+    public class FreedomClientLogger : ILogger
     {
-        private readonly StreamWriter _writer;
-        private readonly FileStream _logStream;
+        private readonly string _outputPath;
         public FreedomClientLogger()
         {
             var localDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -18,9 +17,7 @@ namespace FreedomClient.Infrastructure
             {
                 Directory.CreateDirectory(appDataPath);
             }
-            var logPath = Path.Join(appDataPath, "log.txt");
-            _logStream = File.OpenWrite(logPath);
-            _writer = new StreamWriter(_logStream);
+            _outputPath = Path.Join(appDataPath, "log.txt");
         }
         
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull
@@ -28,11 +25,6 @@ namespace FreedomClient.Infrastructure
             throw new NotImplementedException();
         }
 
-        public void Dispose()
-        {
-            _writer.Dispose();
-            _logStream.Dispose();
-        }
 
         public bool IsEnabled(LogLevel logLevel)
         {
@@ -62,7 +54,13 @@ namespace FreedomClient.Infrastructure
         }
         private void WriteLine(string line)
         {
-            _writer.WriteLine(line);
+            using(var stream = File.OpenWrite(_outputPath))
+            {
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.WriteLine(line);
+                }
+            }
         }
     }
 }
