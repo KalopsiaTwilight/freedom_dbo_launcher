@@ -1,12 +1,19 @@
 ﻿using FreedomClient.Core;
 using FreedomClient.Infrastructure;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Ookii.Dialogs.Wpf;
 using Org.BouncyCastle.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -65,6 +72,9 @@ namespace FreedomClient
                 txtProgress.Text = "Checking for updates...";
                 CheckForUpdates();
             }
+
+            bgImage.ImagePaths = _appState.LauncherImages;
+            UpdateLauncherImages();
         }
 
         private async void CheckForUpdates()
@@ -74,7 +84,8 @@ namespace FreedomClient
             {
                 _appState.LoadState = ApplicationLoadState.CheckForUpdate;
                 _downloadTokenSource = new CancellationTokenSource();
-                await Dispatcher.BeginInvoke(() => { 
+                await Dispatcher.BeginInvoke(() =>
+                {
                     txtProgress.Text = "Updating...";
                     btnMain.Content = "Install";
                 });
@@ -82,10 +93,11 @@ namespace FreedomClient
                 _appState.LastManifest = manifest;
                 VerifyInstall();
                 return;
-            } 
-            if(!CheckRequiredFilesExist(_appState.LastManifest))
+            }
+            if (!CheckRequiredFilesExist(_appState.LastManifest))
             {
-                await Dispatcher.BeginInvoke(() => {
+                await Dispatcher.BeginInvoke(() =>
+                {
                     btnMain.Content = "Install";
                 });
                 VerifyInstall();
@@ -102,7 +114,7 @@ namespace FreedomClient
 
         private bool CheckRequiredFilesExist(DownloadManifest manifest)
         {
-            foreach(var entry in manifest)
+            foreach (var entry in manifest)
             {
                 var filePath = Path.Combine(_appState.InstallPath, entry.Key);
                 if (!File.Exists(filePath))
@@ -312,7 +324,8 @@ namespace FreedomClient
                 }
             }
             RemoveEmptyDirectores(_appState.InstallPath);
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 txtProgress.Text = "Installation cancelled.";
             });
         }
@@ -376,7 +389,7 @@ namespace FreedomClient
             {
                 Dispatcher.Invoke(() =>
                 {
-                    var totalDownloaded =  _totalBytesDownloaded + e.TotalBytesRead;
+                    var totalDownloaded = _totalBytesDownloaded + e.TotalBytesRead;
                     var progress = (totalDownloaded + _totalBytesVerified) / (double)_totalBytesToProcess * 100;
                     var downloadedPMs = (totalDownloaded) / (double)_overallTimer.ElapsedMilliseconds;
                     var fileProgress = Math.Floor((double)e.TotalBytesRead / e.Entry.FileSize * 100);
@@ -438,6 +451,8 @@ namespace FreedomClient
         }
         #endregion
 
+        #region Utility
+
         static string BytesToString(long byteCount, int precision = 0)
         {
             string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
@@ -459,6 +474,68 @@ namespace FreedomClient
                     Directory.Delete(subDirectory);
                 }
             }
+        }
+
+        #endregion
+
+        private async void UpdateLauncherImages()
+        {
+            var credential = GoogleCredential
+                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
+                .CreateScoped(DriveService.Scope.Drive);
+            var service = new DriveService(new BaseClientService.Initializer()
+            {
+                ApplicationName = Constants.AppIdentifier,
+                HttpClientInitializer = credential
+            });
+            var listFilesRequest = service.Files.List();
+            listFilesRequest.SupportsAllDrives = true;
+            listFilesRequest.IncludeItemsFromAllDrives = true;
+            listFilesRequest.Q = $"'{Constants.LauncherImagesDriveFolderId}' in parents";
+            var listFilesResponse = await listFilesRequest.ExecuteAsync();
+            if (listFilesResponse == null)
+            {
+                _logger.LogError("Unable to download images from google drive");
+                return;
+            }
+            var imageCollection = new List<string>();
+            foreach (var file in listFilesResponse.Files)
+            {
+                var outputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppIdentifier, "launcherImages", file.Name);
+                if (!Directory.Exists(Path.GetDirectoryName(outputPath)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+                }
+                if (!File.Exists(outputPath))
+                {
+                    var downloadFileRequest = service.Files.Get(file.Id);
+                    downloadFileRequest.AcknowledgeAbuse = true;
+                    using (var fileStream = File.Create(outputPath))
+                    {
+                        var progress = await downloadFileRequest.DownloadAsync(fileStream);
+
+                        if (progress.BytesDownloaded == 0)
+                        {
+                            throw new InvalidDataException();
+                        }
+                    }
+                }
+                imageCollection.Add(outputPath);
+            }
+            imageCollection = imageCollection.OrderBy(x => Path.GetFileName(x)).ToList();
+            Dispatcher.Invoke(() =>
+            {
+                bgImage.ImagePaths = imageCollection;
+            });
+            // Clean up old images
+            foreach(var img in _appState.LauncherImages)
+            {
+                if (!imageCollection.Contains(img))
+                {
+                    File.Delete(img);
+                }
+            }
+            _appState.LauncherImages= imageCollection;
         }
     }
 }

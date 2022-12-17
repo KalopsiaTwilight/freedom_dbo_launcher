@@ -22,6 +22,7 @@ namespace FreedomClient.Infrastructure
             LastManifest = new DownloadManifest();
             Version = Assembly.GetExecutingAssembly().GetName().Version!.ToString();
             LoadState = ApplicationLoadState.NotInstalled;
+            LauncherImages = new List<string>();
         }
 
         public string? InstallPath { get; set; }
@@ -29,6 +30,8 @@ namespace FreedomClient.Infrastructure
         public DownloadManifest LastManifest { get; set; }
 
         public string Version { get; set; }
+
+        public List<string> LauncherImages { get; set; }
 
         private ApplicationLoadState? _loadState;
 

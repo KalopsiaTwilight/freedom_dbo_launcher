@@ -4,6 +4,9 @@
     {
         public const string AppIdentifier = "WoWFreedomClient";
         public const string CdnUrl = "https://cdn.wowfreedom-rp.com";
+
+        public const string LauncherImagesDriveFolderId = "1U3PPhiYNoh-TfWXqYILOVu_KhLtPes4V";
+
         public const string GoogleCredentialsJsonPath = "data/google-credentials.json";
         public const string PublicSigningCert = @"-----BEGIN CERTIFICATE-----
 MIIFRTCCAy2gAwIBAgIUSpZCm1LLShWZJ43qJTE7AqJTxlAwDQYJKoZIhvcNAQEL

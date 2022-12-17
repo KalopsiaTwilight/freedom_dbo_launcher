@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FreedomClient.Controls"
         mc:Ignorable="d"
-        Title="Freedom WoW" Height="450" Width="800" Background="#1A1D1A" 
+        Title="Freedom WoW" Height="450" Width="848" Background="#1A1D1A" 
         WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
         BorderBrush="#BF000000" BorderThickness="1">
     <Grid MouseDown="MenuGrid_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="32"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
-            <RowDefinition Height="4*"></RowDefinition>
+            <RowDefinition Height="295"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
         </Grid.RowDefinitions>
 
@@ -52,22 +52,14 @@
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
-                <Image Grid.ColumnSpan="2" Source="assets/images/background_img.jpg" Stretch="Fill" Opacity="0.8"/>
-                <TextBlock Grid.ColumnSpan="2" Foreground="White" HorizontalAlignment="Center" >
-                    Just imagine a cool background image here ok
-                </TextBlock>
-                <TextBlock 
+                <local:CyclingBackgroundImage x:Name="bgImage" Grid.ColumnSpan="2" />
+
+                <!--<TextBlock 
                     HorizontalAlignment="Center" VerticalAlignment="Center" 
                     Foreground="White" FontSize="36" FontFamily="./assets/fonts/#Morpheus"
                  >
                     Happy New Core!
-                </TextBlock>
-                <TextBlock 
-                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,60,0,0"
-                    Foreground="White" 
-                 >
-                    (Or some other welcoming message)
-                </TextBlock>
+                </TextBlock>-->
                 <Button Style="{StaticResource BigButton}"
                     Grid.Column="1" Margin="0,10,10,0" HorizontalAlignment="Right" VerticalAlignment="Top"
                     Click="btnForums_Click"
@@ -117,7 +109,7 @@
             </Grid>
 
             <Button Style="{StaticResource BigButton}"
-                Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,20,0"
+                Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,20,5"
                 Name="btnMain"
                 Click="btnMain_Click">
                 Launch

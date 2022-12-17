@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="FreedomClient.Controls.CyclingBackgroundImage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FreedomClient.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             x:Name="uc"
+             >
+    <Grid ClipToBounds="True" Name="parent">
+        
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Determinate"/>
+                <VisualState x:Name="Cycling">
+                    <Storyboard RepeatBehavior="1x">
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Image1" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)">
+                            <DiscreteDoubleKeyFrame KeyTime="0" Value="0"/>
+                            <!--<SplineDoubleKeyFrame KeySpline="0.2,0.0 0.8,0.00" KeyTime="0:0:2" Value="-824"/>-->
+                            <EasingDoubleKeyFrame KeyTime="0:0:2" Value="-824">
+                                <EasingDoubleKeyFrame.EasingFunction>
+                                    <CubicEase EasingMode="EaseOut"/>
+                                </EasingDoubleKeyFrame.EasingFunction>
+                            </EasingDoubleKeyFrame>
+                        </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Image2" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)">
+                            <DiscreteDoubleKeyFrame KeyTime="0" Value="824"/>
+                            <EasingDoubleKeyFrame KeyTime="0:0:2" Value="0">
+                                <EasingDoubleKeyFrame.EasingFunction>
+                                    <CubicEase EasingMode="EaseOut"/>
+                                </EasingDoubleKeyFrame.EasingFunction>
+                            </EasingDoubleKeyFrame>
+                            <!--<SplineDoubleKeyFrame KeySpline="0.2,0.0 0.8,0.00" KeyTime="0:0:2" Value="0"/>-->
+                        </DoubleAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <!--<Rectangle Fill="Red" Opacity="0.4"/>-->
+        <Image x:Name="Image1" Source="{Binding Path=Image1Source, ElementName=uc}" Stretch="Fill">
+            <Image.RenderTransform>
+                <TranslateTransform X="0"></TranslateTransform>
+            </Image.RenderTransform>
+        </Image>
+        <Image x:Name="Image2" Source="{Binding Path=Image2Source,ElementName=uc}" Stretch="Fill">
+            <Image.RenderTransform>
+                <TranslateTransform X="{Binding Path=Width, ElementName=uc}"></TranslateTransform>
+            </Image.RenderTransform>
+        </Image>
+    </Grid>
+</UserControl>
