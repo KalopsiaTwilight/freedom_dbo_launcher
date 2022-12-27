@@ -93,7 +93,6 @@ namespace FreedomClient
                 await Dispatcher.BeginInvoke(() =>
                 {
                     txtProgress.Text = "Updating...";
-                    btnMain.Content = "Install";
                 });
                 await _fileClient.VerifyFiles(patchManifest, _appState.InstallPath, _downloadTokenSource.Token);
                 _overallTimer.Stop();
