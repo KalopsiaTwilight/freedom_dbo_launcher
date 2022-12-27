@@ -93,8 +93,8 @@
                     <DropShadowEffect/>
                 </ProgressBar.Effect>
             </ProgressBar>
-            <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="490" Height="20" 
-                Margin="40,0,0,5">
+            <Grid VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="515" Height="20" 
+                Margin="0,0,5,4">
                 <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Center"
                 Foreground="White" FontSize="16" FontFamily="./assets/fonts/#Friz Quadrata Std"
                 Name="txtOverallProgress">
