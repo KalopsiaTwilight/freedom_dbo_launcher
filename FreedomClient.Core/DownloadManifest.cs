@@ -2,7 +2,54 @@
 
 namespace FreedomClient.Core
 {
-    public class DownloadManifest: Dictionary<string, DownloadManifestEntry> { }
+    public class DownloadManifest: Dictionary<string, DownloadManifestEntry>, IEquatable<DownloadManifest>
+    {
+        public bool Equals(DownloadManifest? other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            // Optimization for a common success case.
+            if (Object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            // If run-time types are not exactly the same, return false.
+            if (GetType() != other.GetType())
+            {
+                return false;
+            }
+
+            if (Count != other.Count)
+            {
+                return false;
+            }
+            foreach (var keypair in other)
+            {
+                if (!ContainsKey(keypair.Key) || this[keypair.Key] != keypair.Value)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public DownloadManifest CreatePatchManifestFrom(DownloadManifest other)
+        {
+            DownloadManifest result = new();
+            foreach (var keypair in this)
+            {
+                if (!other.ContainsKey(keypair.Key) || other[keypair.Key] != keypair.Value)
+                {
+                    result.Add(keypair.Key, keypair.Value);
+                }
+            }
+            return result;
+        }
+    }
 
     public class DownloadManifestEntry: IEquatable<DownloadManifestEntry>
     {

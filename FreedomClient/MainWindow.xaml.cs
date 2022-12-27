@@ -79,19 +79,34 @@ namespace FreedomClient
 
         private async void CheckForUpdates()
         {
-            var updateReady = await _fileClient.CheckForUpdates(_appState.LastManifest, _downloadTokenSource.Token);
-            if (updateReady)
+            var latestManifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
+            if (!latestManifest.Equals(_appState.LastManifest))
             {
+                // Get update manifest here
+                var patchManifest = latestManifest.CreatePatchManifestFrom(_appState.LastManifest);
                 _appState.LoadState = ApplicationLoadState.CheckForUpdate;
+                _downloadTokenSource.Dispose();
                 _downloadTokenSource = new CancellationTokenSource();
+                _totalBytesToProcess = patchManifest.Sum(x => x.Value.FileSize);
+                _totalBytesDownloaded = 0;
+                _totalBytesVerified = 0;
                 await Dispatcher.BeginInvoke(() =>
                 {
                     txtProgress.Text = "Updating...";
                     btnMain.Content = "Install";
                 });
-                var manifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
-                _appState.LastManifest = manifest;
-                VerifyInstall();
+                await _fileClient.VerifyFiles(patchManifest, _appState.InstallPath, _downloadTokenSource.Token);
+                _overallTimer.Stop();
+                _appState.LastManifest = latestManifest;
+                _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
+                await Dispatcher.BeginInvoke(() =>
+                {
+                    btnCancelDownload.Visibility = Visibility.Hidden;
+                    pgbProgress.Value = 100;
+                    txtProgress.Text = "Ready to launch!";
+                    txtOverallProgress.Text = "";
+                    btnMain.IsEnabled = true;
+                });
                 return;
             }
             if (!CheckRequiredFilesExist(_appState.LastManifest))

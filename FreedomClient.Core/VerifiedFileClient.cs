@@ -43,23 +43,6 @@ namespace FreedomClient.Core
             DownloadTimer = new Stopwatch();
         }
 
-        public async Task<bool> CheckForUpdates(DownloadManifest currentManifest, CancellationToken cancellationToken)
-        {
-            var manifest = await GetManifest(cancellationToken);
-            if (manifest.Count != currentManifest.Count)
-            {
-                return true;
-            }
-            foreach (var keypair in manifest)
-            {
-                if (!currentManifest.ContainsKey(keypair.Key) || currentManifest[keypair.Key] != keypair.Value)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public async Task VerifyFiles(DownloadManifest manifest, string installDirectory, CancellationToken cancellationToken)
         {
             DownloadManifest toRedownload = new();
