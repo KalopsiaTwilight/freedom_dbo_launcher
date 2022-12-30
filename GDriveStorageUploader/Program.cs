@@ -48,17 +48,17 @@ var downloadSources = new Dictionary<string, DownloadSource>();
 var filesToArchive = new List<FileInfo>();
 foreach (var fileInfo in fileInfos)
 {
-    var fileKey = fileInfo.FullName.Substring(args[0].Length + 1).Replace("\\", "/");
-    if (downloadSourceConfig.DownloadSources.ContainsKey(fileKey))
-    {
-        Console.WriteLine($"Skipping {fileInfo.Name} because it already exists in the config.");
-        continue;
-    }
-
     if (fileInfo.Length < ArchiveTreshold)
     {
         Console.WriteLine($"Adding {fileInfo.Name} to archive files because it is smaller than the threshold for individual files.");
         filesToArchive.Add(fileInfo);
+        continue;
+    }
+
+    var fileKey = fileInfo.FullName.Substring(args[0].Length + 1).Replace("\\", "/");
+    if (downloadSourceConfig.DownloadSources.ContainsKey(fileKey))
+    {
+        Console.WriteLine($"Skipping {fileInfo.Name} because it already exists in the config.");
         continue;
     }
 
@@ -100,7 +100,13 @@ CreateArchive(currentArchive, finalArchivePath);
 //Add new datasources to config
 foreach (var keypair in downloadSources)
 {
-    downloadSourceConfig.DownloadSources.Add(keypair.Key, keypair.Value);
+    if (downloadSourceConfig.DownloadSources.ContainsKey(keypair.Key))
+    {
+        downloadSourceConfig.DownloadSources[keypair.Key] = keypair.Value;
+    } else
+    {
+        downloadSourceConfig.DownloadSources.Add(keypair.Key, keypair.Value);
+    }
 }
 
 // Write DownloadSourceConfig to json file
