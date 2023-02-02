@@ -13,10 +13,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using static System.Windows.Forms.AxHost;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace FreedomClient
@@ -79,7 +81,24 @@ namespace FreedomClient
 
         private async void CheckForUpdates()
         {
-            var latestManifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
+            DownloadManifest latestManifest;
+            try
+            {
+                latestManifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
+            }
+            catch (HttpRequestException e)
+            {
+                await Dispatcher.BeginInvoke(() =>
+                {
+                    txtProgress.Text = "Unable to connect to Freedom's CDN to check for updates." + Environment.NewLine + 
+                    "You might not be able to log in.";
+                    btnMain.IsEnabled = true;
+                });
+                _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
+                _logger.LogError(e);
+                return;
+            }
+
             if (!latestManifest.Equals(_appState.LastManifest))
             {
                 // Get update manifest here
@@ -209,7 +228,17 @@ namespace FreedomClient
                 _downloadTokenSource = new CancellationTokenSource();
                 btnCancelDownload.Visibility = Visibility.Visible;
                 txtProgress.Text = "Downloading manifest...";
-                var manifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
+                DownloadManifest manifest;
+                try
+                {
+                    manifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
+                }
+                catch(HttpRequestException e)
+                {
+                    _logger.LogError(e);
+                    txtProgress.Text = "Unable to connect to Freedom's CDN. Please try again later.";
+                    return;
+                }
                 _appState.LastManifest = manifest;
                 pgbProgress.Visibility = Visibility.Visible;
 
