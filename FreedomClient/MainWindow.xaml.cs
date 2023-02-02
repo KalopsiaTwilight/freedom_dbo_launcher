@@ -86,7 +86,7 @@ namespace FreedomClient
             {
                 latestManifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
             }
-            catch (HttpRequestException e)
+            catch (HttpRequestException exc)
             {
                 await Dispatcher.BeginInvoke(() =>
                 {
@@ -95,7 +95,7 @@ namespace FreedomClient
                     btnMain.IsEnabled = true;
                 });
                 _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
-                _logger.LogError(e);
+                _logger.LogError(exc, null);
                 return;
             }
 
@@ -233,9 +233,9 @@ namespace FreedomClient
                 {
                     manifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
                 }
-                catch(HttpRequestException e)
+                catch(HttpRequestException exc)
                 {
-                    _logger.LogError(e);
+                    _logger.LogError(exc, null);
                     txtProgress.Text = "Unable to connect to Freedom's CDN. Please try again later.";
                     return;
                 }
