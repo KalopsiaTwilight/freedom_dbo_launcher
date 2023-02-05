@@ -235,6 +235,18 @@ namespace FreedomClient.Core
         {
             // Check if archive is already downloaded...
             var tempFilePath = Path.Combine(Path.GetTempPath(), source.GoogleDriveArchiveId);
+            if (File.Exists(tempFilePath))
+            {
+                // Check if file hasn't been corrupted.
+                try
+                {
+                    var zipfile = ZipFile.Open(tempFilePath, ZipArchiveMode.Read);
+                    zipfile.Dispose();
+                } catch
+                {
+                    File.Delete(tempFilePath);
+                }
+            }
             if (!File.Exists(tempFilePath))
             {
                 var credential = GoogleCredential
