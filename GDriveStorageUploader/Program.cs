@@ -7,6 +7,7 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Google.Apis.Upload;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Math.EC.Rfc7748;
 using System.IO.Compression;
 
 const long ArchiveTreshold = 100 * 1024 * 1024;
@@ -39,6 +40,19 @@ if (args.Length >= 4)
 }
 downloadSourceConfig ??= new DownloadSourceConfiguration();
 
+// Prepare google drive client
+GoogleCredential credential = GoogleCredential
+    .FromStream(File.OpenRead(args[1]))
+    .CreateScoped(DriveService.Scope.Drive);
+
+// Create Drive API service.
+var gdriveService = new DriveService(new BaseClientService.Initializer
+{
+    HttpClientInitializer = credential,
+    ApplicationName = Constants.AppIdentifier
+});
+
+
 
 // Create download sources for files in directory 
 Console.WriteLine($"Creating download sources for files in {args[0]}...");
@@ -63,7 +77,7 @@ foreach (var fileInfo in fileInfos)
     }
 
     Console.WriteLine($"Uploading file {fileInfo.Name}...");
-    var fileId = UploadFileToDrive(fileInfo, args[1], args[2]);
+    var fileId = UploadFileToDrive(fileInfo, args[2]);
     if (fileId == null)
     {
         Console.WriteLine("Unable to upload file. Halting...");
@@ -78,6 +92,8 @@ foreach (var fileInfo in fileInfos)
         });
     }
 }
+
+DeletePreviousArchiveFiles();
 
 //Bundle small files together in archive
 List<FileInfo> currentArchive = new List<FileInfo>();
@@ -134,7 +150,7 @@ void CreateArchive(List<FileInfo> filesToArchive, string archivePath)
     ZipFile.CreateFromDirectory(tempAchiveDir, archivePath);
     Directory.Delete(tempAchiveDir, true);
     Console.WriteLine("Uploading archive...");
-    var fileId = UploadFileToDrive(new FileInfo(archivePath), args[1], args[2]);
+    var fileId = UploadFileToDrive(new FileInfo(archivePath), args[2]);
     if (fileId == null)
     {
         Console.WriteLine("Unable to upload archive. Halting...");
@@ -156,21 +172,10 @@ void CreateArchive(List<FileInfo> filesToArchive, string archivePath)
     }
 }
 
-string? UploadFileToDrive(FileInfo fileInfo, string credentialPath, string parentId)
+string? UploadFileToDrive(FileInfo fileInfo, string parentId)
 {
     try
     {
-        GoogleCredential credential = GoogleCredential
-            .FromStream(File.OpenRead(credentialPath))
-            .CreateScoped(DriveService.Scope.Drive);
-
-        // Create Drive API service.
-        var service = new DriveService(new BaseClientService.Initializer
-        {
-            HttpClientInitializer = credential,
-            ApplicationName = Constants.AppIdentifier
-        });
-
         var fileMetadata = new Google.Apis.Drive.v3.Data.File()
         {
             Name = fileInfo.Name,
@@ -184,7 +189,7 @@ string? UploadFileToDrive(FileInfo fileInfo, string credentialPath, string paren
             using (var stream = new FileStream(fileInfo.FullName, FileMode.Open))
             {
                 // Create a new file, with metadata and stream.
-                request = service.Files.Create(
+                request = gdriveService.Files.Create(
                     fileMetadata, stream, "application/octet-stream");
                 request.Fields = "id";
                 request.ProgressChanged += (x) =>
@@ -220,6 +225,27 @@ string? UploadFileToDrive(FileInfo fileInfo, string credentialPath, string paren
         }
     }
     return null;
+}
+
+void DeletePreviousArchiveFiles()
+{
+    var archives = downloadSourceConfig.DownloadSources
+        .Where(x => x.Value is GoogleDriveArchiveDownloadSource)
+        .Select(x => x.Value.Id)
+        .Distinct()
+        .ToList();
+    foreach(var archive in archives)
+    {
+        try
+        {
+            var request = gdriveService.Files.Delete(archive);
+            var resp = request.Execute();
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+    }
 }
 
 void EnsureDirectoriesExist(string pathToTest, string installPath)
