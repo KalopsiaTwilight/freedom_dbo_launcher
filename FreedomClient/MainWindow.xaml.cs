@@ -186,7 +186,25 @@ namespace FreedomClient
                     var key = file.Substring(_appState.InstallPath!.Length + 1).Replace("\\", "/");
                     if (!manifest.ContainsKey(key))
                     {
-                        File.Delete(file);
+                        try
+                        {
+                            File.Delete(file);
+                        }
+                        catch(Exception e)
+                        {
+                            _logger.LogError(e, null);
+                            _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
+                            await Dispatcher.BeginInvoke(() =>
+                            {
+                                pgbProgress.Value = 100;
+                                btnCancelDownload.Visibility = Visibility.Hidden;
+                                txtProgress.Text = "Failed to delete extra files, install files were restored.";
+                                txtOverallProgress.Text = "";
+                                btnMain.IsEnabled = true;
+                                btnMain.Content = "Launch";
+                            });
+                            return;
+                        }
                     }
                 }
                 RemoveEmptyDirectores(_appState.InstallPath);
