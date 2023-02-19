@@ -13,11 +13,11 @@
             <RowDefinition Height="32"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
             <RowDefinition Height="295"></RowDefinition>
-            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="62"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Image Grid.RowSpan="4" Source="assets/images/Grunge_v_by_struckdumb.jpg" Stretch="UniformToFill" Opacity="0.31"></Image>
-        <Image Grid.RowSpan="4" Source="assets/images/HighRes Parchment.jpg" Stretch="UniformToFill" Opacity="0.40"></Image>
+        <Image Grid.RowSpan="5" Source="assets/images/Grunge_v_by_struckdumb.jpg" Stretch="UniformToFill" Opacity="0.31"></Image>
+        <Image Grid.RowSpan="5" Source="assets/images/HighRes Parchment.jpg" Stretch="UniformToFill" Opacity="0.40"></Image>
         <Grid Grid.Row="0" Name="MenuGrid">
             <Button Name="btnMinimize" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,64,0" Click="btnMinimize_Click"
                     ToolTip="Minimize the launcher">
@@ -32,7 +32,7 @@
                 <Image Height="20" Width="20" Source="{StaticResource xmark_solidDrawingImage}"/>
             </Button>
         </Grid>
-        <Grid Grid.Row="0" Grid.RowSpan="2">
+        <Grid Grid.Row="1">
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="56" FontFamily="./assets/fonts/#Morpheus" Text="FREEDOM WOW">
                 <TextBlock.Foreground>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -66,14 +66,46 @@
                 >
                     Forums
                 </Button>
-                <Button Style="{StaticResource BigButton}"
+                <!--<Button Style="{StaticResource BigButton}"
                     Grid.Column="1" Margin="0,75,10,0" HorizontalAlignment="Right" VerticalAlignment="Top"
                     Click="btnStatus_Click"        
                 >
                     Status
-                </Button>
+                </Button>-->
             </Grid>
         </Border>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="220"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1">
+                <TextBlock 
+                Margin="0,0,30,18" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                Foreground="White" FontSize="16" FontFamily="./assets/fonts/#Friz Quadrata Std"
+                >
+                Server Status:
+                </TextBlock>
+                <Ellipse Margin="90,0,0,20" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="16" Height="16">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush>
+                            <RadialGradientBrush.Transform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform/>
+                                    <TranslateTransform X="6" Y="-4"/>
+                                </TransformGroup>
+                            </RadialGradientBrush.Transform>
+                            <GradientStop x:Name="srvStatusIndicator" Color="#333333" Offset="1"/>
+                            <GradientStop Color="#FFF" Offset="0"/>
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+
+                </Ellipse>
+            </Grid>
+        </Grid>
 
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>

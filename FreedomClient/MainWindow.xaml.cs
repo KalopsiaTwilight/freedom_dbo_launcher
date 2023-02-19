@@ -15,9 +15,11 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using static System.Windows.Forms.AxHost;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -32,17 +34,21 @@ namespace FreedomClient
         private readonly ApplicationState _appState;
         private readonly ILogger _logger;
         private readonly Stopwatch _overallTimer;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         private CancellationTokenSource _downloadTokenSource;
         private long _totalBytesDownloaded;
         private long _totalBytesVerified;
         private long _totalBytesToProcess;
 
-        public MainWindow(VerifiedFileClient fileClient, ApplicationState state, ILogger logger)
+        private Timer _serverStatusTimer;
+
+        public MainWindow(VerifiedFileClient fileClient, ApplicationState state, ILogger logger, IHttpClientFactory httpClientFactory)
         {
             _downloadTokenSource = new CancellationTokenSource();
             _overallTimer = new Stopwatch();
 
+            _httpClientFactory = httpClientFactory;
             _fileClient = fileClient;
             _appState = state;
             _logger = logger;
@@ -77,6 +83,8 @@ namespace FreedomClient
 
             bgImage.ImagePaths = _appState.LauncherImages;
             UpdateLauncherImages();
+
+            _serverStatusTimer = new Timer(new TimerCallback(UpdateServerStatus), null, 0, 10000);
         }
 
         private async void CheckForUpdates()
@@ -90,7 +98,7 @@ namespace FreedomClient
             {
                 await Dispatcher.BeginInvoke(() =>
                 {
-                    txtProgress.Text = "Unable to connect to Freedom's CDN to check for updates." + Environment.NewLine + 
+                    txtProgress.Text = "Unable to connect to Freedom's CDN to check for updates." + Environment.NewLine +
                     "You might not be able to log in.";
                     btnMain.IsEnabled = true;
                 });
@@ -195,7 +203,7 @@ namespace FreedomClient
                         {
                             File.Delete(file);
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             _logger.LogError(e, null);
                             _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
@@ -251,7 +259,7 @@ namespace FreedomClient
                 {
                     manifest = await _fileClient.GetManifest(_downloadTokenSource.Token);
                 }
-                catch(HttpRequestException exc)
+                catch (HttpRequestException exc)
                 {
                     _logger.LogError(exc, null);
                     txtProgress.Text = "Unable to connect to Freedom's CDN. Please try again later.";
@@ -603,14 +611,40 @@ namespace FreedomClient
                 bgImage.ImagePaths = imageCollection;
             });
             // Clean up old images
-            foreach(var img in _appState.LauncherImages)
+            foreach (var img in _appState.LauncherImages)
             {
                 if (!imageCollection.Contains(img))
                 {
                     File.Delete(img);
                 }
             }
-            _appState.LauncherImages= imageCollection;
+            _appState.LauncherImages = imageCollection;
+        }
+
+        private async void UpdateServerStatus(object? state)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var resp = await client.PostAsync(Constants.MinimanagerUrl + "/Data/StatusLinePartial", null);
+            Color toSet = Color.FromRgb(51, 51, 51);
+            if (resp.IsSuccessStatusCode)
+            {
+                var statusText = await resp.Content.ReadAsStringAsync();
+                var match = Regex.Match(statusText, ".*status-(\\w+)");
+                if (match.Success)
+                {
+                    switch (match.Groups[1].Value)
+                    {
+                        case "good": toSet = Color.FromRgb(76, 185, 68); break;
+                        case "loading": toSet = Color.FromRgb(245, 166, 91); break;
+                        case "bad": toSet = Color.FromRgb(137, 2, 62); break;
+                    }
+                }
+
+            }
+            await srvStatusIndicator.Dispatcher.BeginInvoke(() =>
+            {
+                srvStatusIndicator.Color = toSet;
+            });
         }
     }
 }

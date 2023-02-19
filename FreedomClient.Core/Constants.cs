@@ -5,6 +5,8 @@
         public const string AppIdentifier = "WoWFreedomClient";
         public const string CdnUrl = "https://cdn.wowfreedom-rp.com";
 
+        public const string MinimanagerUrl = "https://sl.wowfreedom-rp.com";
+
         public const string LauncherImagesDriveFolderId = "1U3PPhiYNoh-TfWXqYILOVu_KhLtPes4V";
 
         public const string GoogleCredentialsJsonPath = "data/google-credentials.json";
