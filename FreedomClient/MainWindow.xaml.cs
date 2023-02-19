@@ -124,6 +124,28 @@ namespace FreedomClient
                 });
                 await _fileClient.VerifyFiles(patchManifest, _appState.InstallPath, _downloadTokenSource.Token);
                 _overallTimer.Stop();
+
+                await Dispatcher.BeginInvoke(() =>
+                {
+                    txtProgress.Text = "Clearing cache...";
+                });
+                var cachePath = Path.Combine(_appState.InstallPath!, "_retail_/Cache");
+                if (Directory.Exists(cachePath))
+                {
+                    foreach (var file in Directory.EnumerateFiles(cachePath, "*", SearchOption.AllDirectories))
+                    {
+                        try
+                        {
+                            File.Delete(file);
+                        } catch
+                        {
+                            // Just eat the exception here, no reason to let an update fail on this and practically speaking, this should never be hit.
+                        }
+                    }
+                    RemoveEmptyDirectories(cachePath);
+                    Directory.Delete(cachePath);
+                }
+
                 _appState.LastManifest = latestManifest;
                 _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
                 await Dispatcher.BeginInvoke(() =>
@@ -221,7 +243,7 @@ namespace FreedomClient
                         }
                     }
                 }
-                RemoveEmptyDirectores(_appState.InstallPath);
+                RemoveEmptyDirectories(_appState.InstallPath);
             }
             _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
             await Dispatcher.BeginInvoke(() =>
@@ -407,7 +429,7 @@ namespace FreedomClient
                     File.Delete(file);
                 }
             }
-            RemoveEmptyDirectores(_appState.InstallPath);
+            RemoveEmptyDirectories(_appState.InstallPath);
             Dispatcher.Invoke(() =>
             {
                 txtProgress.Text = "Installation cancelled.";
@@ -548,11 +570,11 @@ namespace FreedomClient
             return (Math.Sign(byteCount) * num).ToString() + suf[place];
         }
 
-        void RemoveEmptyDirectores(string path)
+        void RemoveEmptyDirectories(string path)
         {
             foreach (var subDirectory in Directory.GetDirectories(path))
             {
-                RemoveEmptyDirectores(subDirectory);
+                RemoveEmptyDirectories(subDirectory);
                 if (Directory.EnumerateFiles(subDirectory, "*", SearchOption.AllDirectories).Count() == 0)
                 {
                     Directory.Delete(subDirectory);
