@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 
 using FreedomClient.Core;
 using GDriveStorageUploader;
@@ -74,13 +74,10 @@ foreach (var fileInfo in fileInfos)
     var fileKey = fileInfo.FullName.Substring(args[0].Length + 1).Replace("\\", "/");
 
     // Test if filepath should be skipped
-    foreach (var regex in ignoreRegexs)
-    {
-        if (regex.IsMatch(fileKey))
+    if (ignoreRegexs.Any(x => x.IsMatch(fileKey)))
         {
             continue;
         }
-    }
 
     FileInfo fileSource = fileInfo;
     if (downloadSourceConfig.StaticFiles.Keys.Contains(fileKey))

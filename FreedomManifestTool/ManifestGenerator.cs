@@ -39,12 +39,8 @@ namespace FreedomManifestTool
                 var key = file.Substring(workingDirectory.Length + 1).Replace("\\", "/");
 
                 // Test if filepath should be skipped
-                foreach(var regex in ignoreRegexs)
-                {
-                    if (regex.IsMatch(key))
-                    {
-                        continue;
-                    }
+                if (ignoreRegexs.Any(x => x.IsMatch(key))) {
+                    continue;
                 }
 
                 string fileSource = file;
