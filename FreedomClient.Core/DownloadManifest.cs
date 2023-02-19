@@ -81,7 +81,6 @@ namespace FreedomClient.Core
                 return false;
             }
             return Hash == other.Hash &&
-                   Source == other.Source &&
                    FileSize == other.FileSize;
         }
 
