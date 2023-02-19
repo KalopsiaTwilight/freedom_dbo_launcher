@@ -45,8 +45,8 @@ namespace FreedomClient.Core
                 writer.WriteStartObject();
                 writer.WritePropertyName(nameof(GoogleDriveArchiveDownloadSource.GoogleDriveArchiveId));
                 writer.WriteValue(driveArchiveSource.GoogleDriveArchiveId);
-                //writer.WritePropertyName(nameof(GoogleDriveArchiveDownloadSource.ArchiveSize));
-                //writer.WriteValue(driveArchiveSource.ArchiveSize);
+                writer.WritePropertyName(nameof(GoogleDriveArchiveDownloadSource.ArchiveSize));
+                writer.WriteValue(driveArchiveSource.ArchiveSize);
                 writer.WriteEndObject();
                 return;
             }
