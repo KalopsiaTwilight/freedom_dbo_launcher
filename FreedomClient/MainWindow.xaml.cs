@@ -241,11 +241,6 @@ namespace FreedomClient
                     return;
                 }
 
-                _appState.InstallPath = folderDialog.SelectedPath;
-                if (!Directory.Exists(_appState.InstallPath))
-                {
-                    Directory.CreateDirectory(_appState.InstallPath);
-                }
 
                 _downloadTokenSource.Dispose();
                 _downloadTokenSource = new CancellationTokenSource();
@@ -263,9 +258,23 @@ namespace FreedomClient
                     return;
                 }
                 _appState.LastManifest = manifest;
-                pgbProgress.Visibility = Visibility.Visible;
 
-                _totalBytesToProcess = manifest.Sum(x => x.Value.FileSize) * 2;
+                var driveInfo = new DriveInfo(folderDialog.SelectedPath);
+                var totalDownloadSize = manifest.Sum(x => x.Value.FileSize);
+                if (driveInfo.AvailableFreeSpace < totalDownloadSize)
+                {
+                    txtProgress.Text = $"Not enough free space on drive. {BytesToString(totalDownloadSize)} is required.";
+                    return;
+                }
+
+                _appState.InstallPath = folderDialog.SelectedPath;
+                if (!Directory.Exists(_appState.InstallPath))
+                {
+                    Directory.CreateDirectory(_appState.InstallPath);
+                }
+
+                pgbProgress.Visibility = Visibility.Visible;
+                _totalBytesToProcess = totalDownloadSize * 2;
                 _totalBytesDownloaded = 0;
                 _totalBytesVerified = 0;
                 await _fileClient.VerifyFiles(manifest, _appState.InstallPath, _downloadTokenSource.Token);
