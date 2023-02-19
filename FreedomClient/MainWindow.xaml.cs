@@ -85,6 +85,7 @@ namespace FreedomClient
             UpdateLauncherImages();
 
             _serverStatusTimer = new Timer(new TimerCallback(UpdateServerStatus), null, 0, 10000);
+            TestLatestVersion();
         }
 
         private async void CheckForUpdates()
@@ -645,6 +646,30 @@ namespace FreedomClient
             {
                 srvStatusIndicator.Color = toSet;
             });
+        }
+
+        private async void TestLatestVersion()
+        {
+            var client = _httpClientFactory.CreateClient();
+            var resp = await client.GetAsync(Constants.CdnUrl + "/latestClientVersion.txt");
+            if (resp.IsSuccessStatusCode)
+            {
+                var versionTxt = await resp.Content.ReadAsStringAsync();
+                if (Version.Parse(_appState.Version) < Version.Parse(versionTxt))
+                {
+                    var result = MessageBox.Show("A new launcher version is available, would you like to download it now?", "New version available", MessageBoxButton.YesNo);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        var pStart = new ProcessStartInfo()
+                        {
+                            UseShellExecute = true,
+                            FileName = "https://github.com/KalopsiaTwilight/freedom_client/releases/" 
+                        };
+                        Process.Start(pStart);
+                        Close();
+                    }
+                }
+            }
         }
     }
 }
