@@ -9,6 +9,7 @@ using Google.Apis.Upload;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Math.EC.Rfc7748;
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 
 const long ArchiveTreshold = 100 * 1024 * 1024;
 const long ArchiveSize = 100 * 1024 * 1024;
@@ -60,24 +61,49 @@ var files = Directory.EnumerateFiles(args[0], "*", SearchOption.AllDirectories);
 var fileInfos = files.Select(x => new FileInfo(x)).OrderByDescending(x => x.Length).ToList();
 var downloadSources = new Dictionary<string, DownloadSource>();
 var filesToArchive = new List<FileInfo>();
+
+// Set up regexes for path ignores
+List<Regex> ignoreRegexs = new();
+foreach (var regex in downloadSourceConfig.IgnoredPaths)
+{
+    ignoreRegexs.Add(new Regex(regex.StartsWith("^") ? regex : ("^" + regex)));
+}
+
 foreach (var fileInfo in fileInfos)
 {
-    if (fileInfo.Length < ArchiveTreshold)
+    var fileKey = fileInfo.FullName.Substring(args[0].Length + 1).Replace("\\", "/");
+
+    // Test if filepath should be skipped
+    foreach (var regex in ignoreRegexs)
     {
-        Console.WriteLine($"Adding {fileInfo.Name} to archive files because it is smaller than the threshold for individual files.");
-        filesToArchive.Add(fileInfo);
+        if (regex.IsMatch(fileKey))
+        {
+            continue;
+        }
+    }
+
+    FileInfo fileSource = fileInfo;
+    if (downloadSourceConfig.StaticFiles.Keys.Contains(fileKey))
+    {
+        fileSource = new FileInfo(downloadSourceConfig.StaticFiles[fileKey]);
+    }
+
+
+    if (fileSource.Length < ArchiveTreshold)
+    {
+        Console.WriteLine($"Adding {fileSource.Name} to archive files because it is smaller than the threshold for individual files.");
+        filesToArchive.Add(fileSource);
         continue;
     }
 
-    var fileKey = fileInfo.FullName.Substring(args[0].Length + 1).Replace("\\", "/");
     if (downloadSourceConfig.DownloadSources.ContainsKey(fileKey))
     {
-        Console.WriteLine($"Skipping {fileInfo.Name} because it already exists in the config.");
+        Console.WriteLine($"Skipping {fileSource.Name} because it already exists in the config.");
         continue;
     }
 
-    Console.WriteLine($"Uploading file {fileInfo.Name}...");
-    var fileId = UploadFileToDrive(fileInfo, args[2]);
+    Console.WriteLine($"Uploading file {fileSource.Name}...");
+    var fileId = UploadFileToDrive(fileSource, args[2]);
     if (fileId == null)
     {
         Console.WriteLine("Unable to upload file. Halting...");

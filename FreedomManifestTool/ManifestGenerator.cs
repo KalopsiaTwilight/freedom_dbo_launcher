@@ -7,6 +7,7 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FreedomManifestTool
 {
@@ -23,13 +24,37 @@ namespace FreedomManifestTool
         {
             var manifest = new DownloadManifest();
             var hashAlgo = SHA1.Create();
+
+            // Set up regexes for path ignores
+            List<Regex> ignoreRegexs = new();
+            foreach(var regex in downloadConfig.IgnoredPaths)
+            {
+                ignoreRegexs.Add(new Regex(regex.StartsWith("^") ? regex : ("^" + regex)));
+            }
+
             // Search through all files in the subdirectory
             foreach (var file in Directory.EnumerateFiles(workingDirectory, "*", SearchOption.AllDirectories))
             {
                 // Replace windows \'s in paths with unix /'s for platform compatability
                 var key = file.Substring(workingDirectory.Length + 1).Replace("\\", "/");
+
+                // Test if filepath should be skipped
+                foreach(var regex in ignoreRegexs)
+                {
+                    if (regex.IsMatch(key))
+                    {
+                        continue;
+                    }
+                }
+
+                string fileSource = file;
+                // Test if file has a static source path
+                if (downloadConfig.StaticFiles.Keys.Contains(key))
+                {
+                    fileSource = downloadConfig.StaticFiles[key];
+                }
                 // Calculate sha1 hash 
-                var hashBytes = hashAlgo.ComputeHash(File.OpenRead(file));
+                var hashBytes = hashAlgo.ComputeHash(File.OpenRead(fileSource));
                 StringBuilder hashResult = new StringBuilder(hashBytes.Length * 2);
                 // Save the sha1hash in lowercase for platform compatability
                 for (int i = 0; i < hashBytes.Length; i++)
@@ -39,14 +64,14 @@ namespace FreedomManifestTool
                 var manifestEntry = new DownloadManifestEntry()
                 {
                     Hash = hash,
-                    FileSize = new FileInfo(file).Length,
+                    FileSize = new FileInfo(fileSource).Length,
                     Source = downloadConfig.DownloadSources.ContainsKey(key)
                         ? downloadConfig.DownloadSources[key]
                         : new DirectHttpDownloadSource(Path.Join(downloadConfig.HttpDownloadSourceUri, key))
                 };
-
                 manifest.Add(key, manifestEntry);
             }
+
             var jsonConvertSettings = new JsonSerializerSettings();
             jsonConvertSettings.Converters.Add(new DownloadSourceJsonConverter());
             var json = JsonConvert.SerializeObject(manifest, jsonConvertSettings);
