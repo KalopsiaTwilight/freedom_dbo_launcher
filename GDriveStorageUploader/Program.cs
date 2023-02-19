@@ -1,4 +1,4 @@
-// See https://aka.ms/new-console-template for more information
+﻿// See https://aka.ms/new-console-template for more information
 
 using FreedomClient.Core;
 using GDriveStorageUploader;
@@ -75,9 +75,9 @@ foreach (var fileInfo in fileInfos)
 
     // Test if filepath should be skipped
     if (ignoreRegexs.Any(x => x.IsMatch(fileKey)))
-        {
-            continue;
-        }
+    {
+        continue;
+    }
 
     FileInfo fileSource = fileInfo;
     if (downloadSourceConfig.StaticFiles.Keys.Contains(fileKey))
@@ -173,7 +173,8 @@ void CreateArchive(List<FileInfo> filesToArchive, string archivePath)
     ZipFile.CreateFromDirectory(tempAchiveDir, archivePath);
     Directory.Delete(tempAchiveDir, true);
     Console.WriteLine("Uploading archive...");
-    var fileId = UploadFileToDrive(new FileInfo(archivePath), args[2]);
+    var archiveInfo = new FileInfo(archivePath);
+    var fileId = UploadFileToDrive(archiveInfo, args[2]);
     if (fileId == null)
     {
         Console.WriteLine("Unable to upload archive. Halting...");
@@ -184,7 +185,8 @@ void CreateArchive(List<FileInfo> filesToArchive, string archivePath)
         Console.WriteLine("Uploaded Archive!");
         var archiveSource = new GoogleDriveArchiveDownloadSource()
         {
-            GoogleDriveArchiveId = fileId
+            GoogleDriveArchiveId = fileId,
+            ArchiveSize = archiveInfo.Length
         };
         foreach (var fileInfo in filesToArchive)
         {

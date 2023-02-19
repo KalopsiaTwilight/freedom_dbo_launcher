@@ -19,7 +19,8 @@ namespace FreedomClient.Core
             {
                 return new GoogleDriveArchiveDownloadSource()
                 {
-                    GoogleDriveArchiveId = jObject.Property(nameof(GoogleDriveArchiveDownloadSource.GoogleDriveArchiveId)).Value.Value<string>()
+                    GoogleDriveArchiveId = jObject.Property(nameof(GoogleDriveArchiveDownloadSource.GoogleDriveArchiveId)).Value.Value<string>(),
+                    ArchiveSize = jObject.Property(nameof(GoogleDriveArchiveDownloadSource.ArchiveSize))?.Value?.Value<long>() ?? 0
                 };
             }
             if (jObject.Property(nameof(DirectHttpDownloadSource.SourceUri)) != null)
@@ -43,7 +44,9 @@ namespace FreedomClient.Core
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName(nameof(GoogleDriveArchiveDownloadSource.GoogleDriveArchiveId));
-                writer.WriteValue(driveArchiveSource.GoogleDriveArchiveId); 
+                writer.WriteValue(driveArchiveSource.GoogleDriveArchiveId);
+                //writer.WritePropertyName(nameof(GoogleDriveArchiveDownloadSource.ArchiveSize));
+                //writer.WriteValue(driveArchiveSource.ArchiveSize);
                 writer.WriteEndObject();
                 return;
             }

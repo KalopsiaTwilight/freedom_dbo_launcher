@@ -115,7 +115,7 @@ namespace FreedomClient
                 _appState.LoadState = ApplicationLoadState.CheckForUpdate;
                 _downloadTokenSource.Dispose();
                 _downloadTokenSource = new CancellationTokenSource();
-                _totalBytesToProcess = patchManifest.Sum(x => x.Value.FileSize);
+                _totalBytesToProcess = CalculateTotalBytesToDownload(patchManifest) + patchManifest.Sum(x => x.Value.FileSize); 
                 _totalBytesDownloaded = 0;
                 _totalBytesVerified = 0;
                 await Dispatcher.BeginInvoke(() =>
@@ -143,7 +143,6 @@ namespace FreedomClient
                         }
                     }
                     RemoveEmptyDirectories(cachePath);
-                    Directory.Delete(cachePath);
                 }
 
                 _appState.LastManifest = latestManifest;
@@ -450,7 +449,7 @@ namespace FreedomClient
 
         private void OnManifestDownloadStarted(object? sender, ManifestDownloadStartedEventArgs e)
         {
-            _totalBytesToProcess = e.ToDownload.Sum(x => x.Value.FileSize) * 2;
+            _totalBytesToProcess = CalculateTotalBytesToDownload(e.ToDownload) + e.ToDownload.Sum(x => x.Value.FileSize);
             _totalBytesDownloaded = 0;
             _totalBytesVerified = 0;
             _overallTimer.Restart();
@@ -692,6 +691,23 @@ namespace FreedomClient
                     }
                 }
             }
+        }
+
+        private long CalculateTotalBytesToDownload(DownloadManifest manifest)
+        {
+            long result = 0;
+            var groups = manifest.GroupBy(x => x.Value.Source.Id);
+            foreach(var group in groups)
+            {
+                if (group.First().Value.Source is GoogleDriveArchiveDownloadSource archive)
+                {
+                    result += archive.ArchiveSize;
+                } else
+                {
+                    result += group.Sum(x => x.Value.FileSize);
+                }
+            }
+            return result;
         }
     }
 }
