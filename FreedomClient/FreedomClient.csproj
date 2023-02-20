@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>assets\freedom_icon.ico</ApplicationIcon>
-	<Version>0.3.0</Version>
+	<Version>0.3.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
