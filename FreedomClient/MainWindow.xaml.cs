@@ -161,6 +161,7 @@ namespace FreedomClient
             {
                 await Dispatcher.BeginInvoke(() =>
                 {
+                    txtProgress.Text = "Restoring missing files...";
                     btnMain.Content = "Install";
                 });
                 VerifyInstall();
