@@ -56,7 +56,10 @@ namespace FreedomClient
             }
 
             _applicationState.InstallPath = folderDialog.SelectedPath;
-            _mainWindow.VerifyInstall();
+            if (_applicationState.LoadState == ApplicationLoadState.ReadyToLaunch)
+            {
+                _mainWindow.VerifyInstall();
+            }
             Close();
         }
 
@@ -68,7 +71,10 @@ namespace FreedomClient
 
         private void ResetInstall_Click(object sender, RoutedEventArgs e)
         {
-            _mainWindow.VerifyInstall(true);
+            if (_applicationState.LoadState == ApplicationLoadState.ReadyToLaunch)
+            {
+                _mainWindow.VerifyInstall(true);
+            }
             Close();
         }
     }

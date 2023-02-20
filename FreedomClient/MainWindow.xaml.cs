@@ -191,11 +191,6 @@ namespace FreedomClient
 
         public async void VerifyInstall(bool completeReset = false)
         {
-            if (_appState.LoadState != ApplicationLoadState.ReadyToLaunch)
-            {
-                return;
-            }
-
             _appState.LoadState = ApplicationLoadState.VerifyingFiles;
             await Dispatcher.BeginInvoke(() =>
             {
