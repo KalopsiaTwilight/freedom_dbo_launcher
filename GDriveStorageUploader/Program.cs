@@ -60,7 +60,7 @@ Console.WriteLine($"Creating download sources for files in {args[0]}...");
 var files = Directory.EnumerateFiles(args[0], "*", SearchOption.AllDirectories);
 var fileInfos = files.Select(x => new FileInfo(x)).OrderByDescending(x => x.Length).ToList();
 var downloadSources = new Dictionary<string, DownloadSource>();
-var filesToArchive = new List<FileInfo>();
+var filesToArchive = new Dictionary<string, FileInfo>();
 
 // Set up regexes for path ignores
 List<Regex> ignoreRegexs = new();
@@ -89,7 +89,7 @@ foreach (var fileInfo in fileInfos)
     if (fileSource.Length < ArchiveTreshold)
     {
         Console.WriteLine($"Adding {fileSource.Name} to archive files because it is smaller than the threshold for individual files.");
-        filesToArchive.Add(fileSource);
+        filesToArchive.Add(fileKey, fileSource);
         continue;
     }
 
@@ -119,12 +119,12 @@ foreach (var fileInfo in fileInfos)
 DeletePreviousArchiveFiles();
 
 //Bundle small files together in archive
-List<FileInfo> currentArchive = new List<FileInfo>();
+Dictionary<string, FileInfo> currentArchive = new Dictionary<string, FileInfo>();
 var totalArchives = 0;
-foreach (var file in filesToArchive)
+foreach (var keyPair in filesToArchive)
 {
-    currentArchive.Add(file);
-    if (currentArchive.Sum(x => x.Length) > ArchiveSize)
+    currentArchive.Add(keyPair.Key, keyPair.Value);
+    if (currentArchive.Sum(x => x.Value.Length) > ArchiveSize)
     {
         var archivePath = Path.Combine(Path.GetTempPath(), $"archive{totalArchives}.zip");
         Console.WriteLine($"Creating archive {totalArchives}...");
@@ -158,15 +158,15 @@ Console.WriteLine($"{nameof(DownloadSourceConfiguration)} written to {outputPath
 Console.WriteLine($"Press any key to exit...");
 Console.ReadKey();
 
-void CreateArchive(List<FileInfo> filesToArchive, string archivePath)
+void CreateArchive(Dictionary<string, FileInfo> filesToArchive, string archivePath)
 {
     var tempAchiveDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
     Directory.CreateDirectory(tempAchiveDir);
-    foreach (var fileInfo in filesToArchive)
+    foreach (var pair in filesToArchive)
     {
-        var fileKey = fileInfo.FullName.Substring(args[0].Length + 1).Replace("\\", "/");
+        var fileKey = pair.Key;
         EnsureDirectoriesExist(fileKey, tempAchiveDir);
-        fileInfo.CopyTo(Path.Combine(tempAchiveDir, fileKey));
+        pair.Value.CopyTo(Path.Combine(tempAchiveDir, fileKey));
     }
     var tempFile = Path.GetTempFileName();
     
@@ -188,10 +188,9 @@ void CreateArchive(List<FileInfo> filesToArchive, string archivePath)
             GoogleDriveArchiveId = fileId,
             ArchiveSize = archiveInfo.Length
         };
-        foreach (var fileInfo in filesToArchive)
+        foreach (var pair in filesToArchive)
         {
-            var fileKey = fileInfo.FullName.Substring(args[0].Length + 1).Replace("\\", "/");
-            downloadSources.Add(fileKey, archiveSource);
+            downloadSources.Add(pair.Key, archiveSource);
         }
         File.Delete(archivePath);
     }
