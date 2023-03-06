@@ -17,7 +17,7 @@ const long ArchiveSize = 100 * 1024 * 1024;
 // Load arguments
 if (args.Length < 3)
 {
-    Console.WriteLine("This program requires at least 3 arguments: {filedirectory} {googleCredentialsPath} {driveFolderId} {optional:downloadSourceConfig}");
+    Console.WriteLine("This program requires at least 3 arguments: {filedirectory} {googleCredentialsPath} {driveFolderId} {optional:downloadSourceConfig} {optional:cleanupArchiveFile}");
     Environment.Exit(1);
 }
 
@@ -26,6 +26,7 @@ var jsonSettings = new JsonSerializerSettings();
 jsonSettings.Converters.Add(new DownloadSourceJsonConverter());
 jsonSettings.Formatting = Formatting.Indented;
 DownloadSourceConfiguration? downloadSourceConfig = null;
+string cleanupArchivesPath = null;
 if (args.Length >= 4)
 {
     Console.WriteLine($"Parsing {nameof(DownloadSourceConfiguration)} in {args[3]}...");
@@ -38,6 +39,10 @@ if (args.Length >= 4)
         Console.Write($"Unable to parse {args[3]} as a {nameof(DownloadSourceConfiguration)}");
         Environment.Exit(1);
     }
+}
+if (args.Length >= 5)
+{
+    cleanupArchivesPath = args[4];
 }
 downloadSourceConfig ??= new DownloadSourceConfiguration();
 
@@ -253,23 +258,31 @@ string? UploadFileToDrive(FileInfo fileInfo, string parentId)
 
 void DeletePreviousArchiveFiles()
 {
+    if (cleanupArchivesPath == null)
+    {
+        return;
+    }
+    if (File.Exists(cleanupArchivesPath))
+    {
+        foreach(var archive in File.ReadAllLines(cleanupArchivesPath))
+        {
+            try
+            {
+                var request = gdriveService.Files.Delete(archive);
+                var resp = request.Execute();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+    }
     var archives = downloadSourceConfig.DownloadSources
         .Where(x => x.Value is GoogleDriveArchiveDownloadSource)
         .Select(x => x.Value.Id)
         .Distinct()
-        .ToList();
-    foreach(var archive in archives)
-    {
-        try
-        {
-            var request = gdriveService.Files.Delete(archive);
-            var resp = request.Execute();
-        }
-        catch(Exception e)
-        {
-            Console.WriteLine(e.ToString());
-        }
-    }
+        .ToArray();
+    File.WriteAllLines(cleanupArchivesPath, archives);
 }
 
 void EnsureDirectoriesExist(string pathToTest, string installPath)
