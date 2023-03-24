@@ -32,7 +32,7 @@ namespace FreedomClient
     {
         private readonly VerifiedFileClient _fileClient;
         private readonly ApplicationState _appState;
-        private readonly ILogger _logger;
+        private readonly ILogger<MainWindow> _logger;
         private readonly Stopwatch _overallTimer;
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -43,7 +43,7 @@ namespace FreedomClient
 
         private Timer _serverStatusTimer;
 
-        public MainWindow(VerifiedFileClient fileClient, ApplicationState state, ILogger logger, IHttpClientFactory httpClientFactory)
+        public MainWindow(VerifiedFileClient fileClient, ApplicationState state, ILogger<MainWindow> logger, IHttpClientFactory httpClientFactory)
         {
             _downloadTokenSource = new CancellationTokenSource();
             _overallTimer = new Stopwatch();
@@ -90,6 +90,7 @@ namespace FreedomClient
 
         private async void CheckForUpdates()
         {
+            _logger.LogInformation("Checking for client files updates...");
             DownloadManifest latestManifest;
             try
             {
@@ -110,6 +111,7 @@ namespace FreedomClient
 
             if (!latestManifest.Equals(_appState.LastManifest))
             {
+                _logger.LogInformation("Starting client files update...");
                 // Get update manifest here
                 var patchManifest = latestManifest.CreatePatchManifestFrom(_appState.LastManifest);
                 _appState.LoadState = ApplicationLoadState.CheckForUpdate;
@@ -125,6 +127,8 @@ namespace FreedomClient
                 await _fileClient.VerifyFiles(patchManifest, _appState.InstallPath, _downloadTokenSource.Token);
                 _overallTimer.Stop();
 
+
+                _logger.LogInformation("Client files update succesful! Clearing cache...");
                 await Dispatcher.BeginInvoke(() =>
                 {
                     txtProgress.Text = "Clearing cache...";
@@ -159,6 +163,7 @@ namespace FreedomClient
             }
             if (!CheckRequiredFilesExist(_appState.LastManifest))
             {
+                _logger.LogInformation("Found missing files, starting restore..");
                 await Dispatcher.BeginInvoke(() =>
                 {
                     txtProgress.Text = "Restoring missing files...";
@@ -167,6 +172,7 @@ namespace FreedomClient
                 VerifyInstall();
                 return;
             }
+            _logger.LogInformation("Client files are up to date!");
             _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
             await Dispatcher.BeginInvoke(() =>
             {
@@ -191,6 +197,7 @@ namespace FreedomClient
 
         public async void VerifyInstall(bool completeReset = false)
         {
+            _logger.LogInformation("Starting installation restore...");
             _appState.LoadState = ApplicationLoadState.VerifyingFiles;
             await Dispatcher.BeginInvoke(() =>
             {
@@ -208,9 +215,11 @@ namespace FreedomClient
             await _fileClient.VerifyFiles(manifest, _appState.InstallPath!, _downloadTokenSource.Token);
             _overallTimer.Stop();
             _downloadTokenSource.Cancel();
+            _logger.LogInformation("Installation restored!");
 
             if (completeReset)
             {
+                _logger.LogInformation("Removing files not included with install...");
                 await Dispatcher.BeginInvoke(() => { txtProgress.Text = "Removing files not included with install..."; });
                 foreach (var file in Directory.EnumerateFiles(_appState.InstallPath!, "*", SearchOption.AllDirectories))
                 {
@@ -239,6 +248,7 @@ namespace FreedomClient
                     }
                 }
                 RemoveEmptyDirectories(_appState.InstallPath);
+                _logger.LogInformation("Files not included with install removed!");
             }
             _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
             await Dispatcher.BeginInvoke(() =>
@@ -581,6 +591,7 @@ namespace FreedomClient
 
         private async void UpdateLauncherImages()
         {
+            _logger.LogInformation("Updating launcher images...");
             var credential = GoogleCredential
                 .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
                 .CreateScoped(DriveService.Scope.Drive);
@@ -637,6 +648,7 @@ namespace FreedomClient
                 }
             }
             _appState.LauncherImages = imageCollection;
+            _logger.LogInformation("Launcher images updated!");
         }
 
         private async void UpdateServerStatus(object? state)
@@ -667,25 +679,37 @@ namespace FreedomClient
 
         private async void TestLatestVersion()
         {
+            _logger.LogInformation("Checking for launcher updates...");
             var client = _httpClientFactory.CreateClient();
-            var resp = await client.GetAsync(Constants.CdnUrl + "/latestClientVersion.txt");
-            if (resp.IsSuccessStatusCode)
+            try
             {
-                var versionTxt = await resp.Content.ReadAsStringAsync();
-                if (Version.Parse(_appState.Version) < Version.Parse(versionTxt))
+                var resp = await client.GetAsync(Constants.CdnUrl + "/latestClientVersion.txt");
+                if (resp.IsSuccessStatusCode)
                 {
-                    var result = MessageBox.Show("A new launcher version is available, would you like to download it now?", "New version available", MessageBoxButton.YesNo);
-                    if (result == MessageBoxResult.Yes)
+                    var versionTxt = await resp.Content.ReadAsStringAsync();
+                    if (Version.Parse(_appState.Version) < Version.Parse(versionTxt))
                     {
-                        var pStart = new ProcessStartInfo()
+                        _logger.LogInformation($"A launcher update is available, new version: {versionTxt}.");
+                        var result = MessageBox.Show("A new launcher version is available, would you like to download it now?", "New version available", MessageBoxButton.YesNo);
+                        if (result == MessageBoxResult.Yes)
                         {
-                            UseShellExecute = true,
-                            FileName = "https://github.com/KalopsiaTwilight/freedom_client/releases/" 
-                        };
-                        Process.Start(pStart);
-                        Close();
+                            var pStart = new ProcessStartInfo()
+                            {
+                                UseShellExecute = true,
+                                FileName = "https://github.com/KalopsiaTwilight/freedom_client/releases/"
+                            };
+                            Process.Start(pStart);
+                            Close();
+                        }
+                    } else
+                    {
+                        _logger.LogInformation($"Launcher is up to date!");
                     }
                 }
+            }
+            catch(HttpRequestException exc)
+            {
+                _logger.LogError(exc, null);
             }
         }
 

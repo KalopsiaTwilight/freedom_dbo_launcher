@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using FreedomClient.Infrastructure;
 using FreedomClient.Core;
 using Newtonsoft.Json;
+using Serilog;
+
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace FreedomClient
 {
@@ -24,7 +27,8 @@ namespace FreedomClient
             var services = new ServiceCollection();
             ConfigureServices(services);
             ServiceProvider = services.BuildServiceProvider();
-            Logger = ServiceProvider.GetRequiredService<ILogger>();
+            Logger = ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<App>();
+            Logger.LogInformation($"Launcher starting up... Running version: {ApplicationState!.Version}!");
             SetupExceptionHandling();
             ServiceProvider.GetRequiredService<MainWindow>().Show();
         }
@@ -39,7 +43,25 @@ namespace FreedomClient
         {
             services.AddSingleton(ApplicationState!);
             services.AddSingleton(typeof(MainWindow));
-            services.AddSingleton(typeof(ILogger), typeof(FreedomClientLogger));
+
+            var localDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var appDataPath = Path.Join(localDataPath, Constants.AppIdentifier);
+            if (!Directory.Exists(appDataPath))
+            {
+                Directory.CreateDirectory(appDataPath);
+            }
+
+            services.AddLogging(lb => lb.AddSerilog(new LoggerConfiguration()
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
+                .Enrich.FromLogContext()
+                .WriteTo.File(
+                    Path.Join(appDataPath, "log.txt"),
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ThreadId}|{ThreadName}] {SourceContext} {Message:lj} {NewLine}{Exception}",
+                    fileSizeLimitBytes: 1000 * 1024, rollOnFileSizeLimit: true, retainedFileCountLimit: 3)
+                .CreateLogger())
+            );
+
             services.AddTransient<VerifiedFileClient>();
             services.AddHttpClient();
         }
