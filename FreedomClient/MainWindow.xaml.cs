@@ -124,7 +124,7 @@ namespace FreedomClient
                 {
                     txtProgress.Text = "Updating...";
                 });
-                await _fileClient.VerifyFiles(patchManifest, _appState.InstallPath, _downloadTokenSource.Token);
+                await _fileClient.VerifyFiles(patchManifest, _appState.InstallPath!, _downloadTokenSource.Token);
                 _overallTimer.Stop();
 
 
@@ -186,7 +186,7 @@ namespace FreedomClient
         {
             foreach (var entry in manifest)
             {
-                var filePath = Path.Combine(_appState.InstallPath, entry.Key);
+                var filePath = Path.Combine(_appState.InstallPath!, entry.Key);
                 if (!File.Exists(filePath))
                 {
                     return false;
@@ -247,7 +247,7 @@ namespace FreedomClient
                         }
                     }
                 }
-                RemoveEmptyDirectories(_appState.InstallPath);
+                RemoveEmptyDirectories(_appState.InstallPath!);
                 _logger.LogInformation("Files not included with install removed!");
             }
             _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
@@ -330,7 +330,7 @@ namespace FreedomClient
                 var pInfo = new ProcessStartInfo()
                 {
                     UseShellExecute = false,
-                    FileName = Path.Combine(_appState.InstallPath, "Arctium WoW Launcher.exe"),
+                    FileName = Path.Combine(_appState.InstallPath!, "Arctium WoW Launcher.exe"),
                     CreateNoWindow = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     Arguments = "",
@@ -340,6 +340,12 @@ namespace FreedomClient
                 txtProgress.Text = "Launching WoW...";
                 pgbProgress.Value = 0;
                 var process = Process.Start(pInfo);
+                if (process == null)
+                {
+                    txtProgress.Text = "Something went wrong launching WoW. Please try again.";
+                    btnMain.IsEnabled = true;
+                    return;
+                }
                 MeasureLaunchProgress(process);
             }
         }
@@ -434,7 +440,7 @@ namespace FreedomClient
                     File.Delete(file);
                 }
             }
-            RemoveEmptyDirectories(_appState.InstallPath);
+            RemoveEmptyDirectories(_appState.InstallPath!);
             Dispatcher.Invoke(() =>
             {
                 txtProgress.Text = "Installation cancelled.";
@@ -593,7 +599,7 @@ namespace FreedomClient
         {
             _logger.LogInformation("Updating launcher images...");
             var credential = GoogleCredential
-                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
+                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()!).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
                 .CreateScoped(DriveService.Scope.Drive);
             var service = new DriveService(new BaseClientService.Initializer()
             {
@@ -611,13 +617,14 @@ namespace FreedomClient
                 return;
             }
             var imageCollection = new List<string>();
+            var launcherImagePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppIdentifier, "launcherImages");
+            if (!Directory.Exists(launcherImagePath))
+            {
+                Directory.CreateDirectory(launcherImagePath);
+            }
             foreach (var file in listFilesResponse.Files)
             {
-                var outputPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppIdentifier, "launcherImages", file.Name);
-                if (!Directory.Exists(Path.GetDirectoryName(outputPath)))
-                {
-                    Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
-                }
+                var outputPath = Path.Combine(launcherImagePath, file.Name);
                 if (!File.Exists(outputPath))
                 {
                     var downloadFileRequest = service.Files.Get(file.Id);

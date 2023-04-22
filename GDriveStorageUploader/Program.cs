@@ -26,7 +26,7 @@ var jsonSettings = new JsonSerializerSettings();
 jsonSettings.Converters.Add(new DownloadSourceJsonConverter());
 jsonSettings.Formatting = Formatting.Indented;
 DownloadSourceConfiguration? downloadSourceConfig = null;
-string cleanupArchivesPath = null;
+string? cleanupArchivesPath = null;
 if (args.Length >= 4)
 {
     Console.WriteLine($"Parsing {nameof(DownloadSourceConfiguration)} in {args[3]}...");
