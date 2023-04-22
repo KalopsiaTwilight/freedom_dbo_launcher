@@ -3,11 +3,9 @@ using FreedomClient.Infrastructure;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Ookii.Dialogs.Wpf;
-using Org.BouncyCastle.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,8 +18,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using static System.Windows.Forms.AxHost;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace FreedomClient
 {
@@ -81,7 +77,9 @@ namespace FreedomClient
                 CheckForUpdates();
             }
 
-            bgImage.ImagePaths = _appState.LauncherImages;
+            bgImage.ImagePaths = _appState.LauncherImages
+                .Where(x => File.Exists(x))
+                .ToList();
             UpdateLauncherImages();
 
             _serverStatusTimer = new Timer(new TimerCallback(UpdateServerStatus), null, 0, 10000);
