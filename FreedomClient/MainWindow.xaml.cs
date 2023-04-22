@@ -1,4 +1,5 @@
-﻿using FreedomClient.Core;
+﻿using FreedomClient.Controls;
+using FreedomClient.Core;
 using FreedomClient.Infrastructure;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
@@ -39,7 +40,7 @@ namespace FreedomClient
 
         private Timer _serverStatusTimer;
 
-        public MainWindow(VerifiedFileClient fileClient, ApplicationState state, ILogger<MainWindow> logger, IHttpClientFactory httpClientFactory)
+        public MainWindow(VerifiedFileClient fileClient, ApplicationState state, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory)
         {
             _downloadTokenSource = new CancellationTokenSource();
             _overallTimer = new Stopwatch();
@@ -47,7 +48,7 @@ namespace FreedomClient
             _httpClientFactory = httpClientFactory;
             _fileClient = fileClient;
             _appState = state;
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger<MainWindow>();
             _totalBytesDownloaded = 0;
             _totalBytesVerified = 0;
             _totalBytesToProcess = 0;
@@ -80,6 +81,7 @@ namespace FreedomClient
             bgImage.ImagePaths = _appState.LauncherImages
                 .Where(x => File.Exists(x))
                 .ToList();
+            bgImage.Logger = loggerFactory.CreateLogger<CyclingBackgroundImage>();
             UpdateLauncherImages();
 
             _serverStatusTimer = new Timer(new TimerCallback(UpdateServerStatus), null, 0, 10000);
