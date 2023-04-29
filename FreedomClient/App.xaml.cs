@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Serilog;
 
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using System.Net.Http.Headers;
 
 namespace FreedomClient
 {
@@ -63,7 +64,10 @@ namespace FreedomClient
             );
 
             services.AddTransient<VerifiedFileClient>();
-            services.AddHttpClient();
+            services.AddHttpClient(Microsoft.Extensions.Options.Options.DefaultName, (opt) =>
+            {
+                opt.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("WoWFreedomLauncher", null));
+            });
         }
 
         private void SetupExceptionHandling()
@@ -104,10 +108,11 @@ namespace FreedomClient
                     try
                     {
                         ApplicationState = JsonConvert.DeserializeObject<ApplicationState>(txt, settings);
-                    } catch { }
+                    }
+                    catch { }
                     ApplicationState ??= new ApplicationState();
-                    
-                    
+
+
                     // TODO: Possible place to perform version upgrades
 
 
@@ -130,7 +135,7 @@ namespace FreedomClient
         private void SaveApplicationState()
         {
             var settings = new JsonSerializerSettings();
-            settings.Formatting= Formatting.Indented;
+            settings.Formatting = Formatting.Indented;
             settings.Converters.Add(new DownloadSourceJsonConverter());
             var json = JsonConvert.SerializeObject(ApplicationState, settings);
             var appStatePath = GetApplicationStatePath();
