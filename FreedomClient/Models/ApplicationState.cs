@@ -1,10 +1,13 @@
 ﻿using FreedomClient.Core;
+using FreedomClient.Models;
 using Newtonsoft.Json;
+using PropertyChanged;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 
-namespace FreedomClient.Infrastructure
+namespace FreedomClient.Models
 {
     public enum ApplicationLoadState
     {
@@ -14,18 +17,19 @@ namespace FreedomClient.Infrastructure
         ReadyToLaunch
     }
 
+    [AddINotifyPropertyChangedInterface]
     public class ApplicationState
     {
-        public event EventHandler<ApplicationLoadState?>? ApplicationLoadStateChanged;
         public ApplicationState()
         {
             LastManifest = new DownloadManifest();
             Version = Assembly.GetExecutingAssembly().GetName().Version!.ToString();
             LoadState = ApplicationLoadState.NotInstalled;
             LauncherImages = new List<string>();
+            InstallPath = string.Empty;
+            UIOperation = UIOperation.NoOp;
         }
-
-        public string? InstallPath { get; set; }
+        public string InstallPath { get; set; }
 
         public DownloadManifest LastManifest { get; set; }
 
@@ -33,12 +37,10 @@ namespace FreedomClient.Infrastructure
 
         public List<string> LauncherImages { get; set; }
 
-        private ApplicationLoadState? _loadState;
+        [JsonIgnore]
+        public ApplicationLoadState LoadState { get;set; }
 
         [JsonIgnore]
-        public ApplicationLoadState? LoadState { 
-            get { return _loadState; } 
-            set { _loadState = value; ApplicationLoadStateChanged?.Invoke(this, value); } 
-        }
+        public UIOperation UIOperation { get; set; }
     }
 }

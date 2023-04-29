@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FreedomClient.Controls"
         mc:Ignorable="d"
-        Title="Freedom WoW" Height="450" Width="848" Background="#1A1D1A" 
+        Title="Freedom WoW" Height="450" Width="1000" Background="#1A1D1A" 
         WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
         BorderBrush="#BF000000" BorderThickness="1">
     <Grid MouseDown="MenuGrid_MouseDown">
@@ -15,24 +15,27 @@
             <RowDefinition Height="295"></RowDefinition>
             <RowDefinition Height="62"></RowDefinition>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="135"></ColumnDefinition>
+            <ColumnDefinition Width="865"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
 
-        <Image Grid.RowSpan="5" Source="assets/images/Grunge_v_by_struckdumb.jpg" Stretch="UniformToFill" Opacity="0.31"></Image>
-        <Image Grid.RowSpan="5" Source="assets/images/HighRes Parchment.jpg" Stretch="UniformToFill" Opacity="0.40"></Image>
-        <Grid Grid.Row="0" Name="MenuGrid">
-            <Button Name="btnMinimize" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,64,0" Click="btnMinimize_Click"
+        <!-- Background & Menu -->
+        <Image Grid.ColumnSpan="2" Grid.RowSpan="5" Source="assets/images/Grunge_v_by_struckdumb.jpg" Stretch="UniformToFill" Opacity="0.31"></Image>
+        <Image Grid.ColumnSpan="2" Grid.RowSpan="5" Source="assets/images/HighRes Parchment.jpg" Stretch="UniformToFill" Opacity="0.40"></Image>
+        <Grid Grid.ColumnSpan="2" Grid.Row="0" Name="MenuGrid">
+            <Button Name="btnMinimize" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,32,0" Click="btnMinimize_Click"
                     ToolTip="Minimize the launcher">
                 <Image Height="20" Width="20" Source="{StaticResource minus_solidDrawingImage}"/>
-            </Button>
-            <Button Name="btnSettings" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,32,0" Click="btnSettings_Click"
-                    ToolTip="Open settings">
-                <Image Height="20" Width="20" Source="{StaticResource gear_solidDrawingImage}"/>
             </Button>
             <Button Name="btnClose" Style="{StaticResource CloseButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,0,0" Click="btnClose_Click"
                     ToolTip="Close the laucher">
                 <Image Height="20" Width="20" Source="{StaticResource xmark_solidDrawingImage}"/>
             </Button>
         </Grid>
-        <Grid Grid.Row="1">
+        
+        <!-- Title -->
+        <Grid Grid.ColumnSpan="2" Grid.RowSpan="2">
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="56" FontFamily="./assets/fonts/#Morpheus" Text="FREEDOM WOW">
                 <TextBlock.Foreground>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -46,68 +49,33 @@
             </TextBlock>
         </Grid>
 
-        <Border Grid.Row="2" CornerRadius="2" BorderBrush="#1A1D1A" BorderThickness="1"  Margin="10" >
-            <Grid Background="#1A1D1A">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <local:CyclingBackgroundImage x:Name="bgImage" Grid.ColumnSpan="2" />
-
-                <!--<TextBlock 
-                    HorizontalAlignment="Center" VerticalAlignment="Center" 
-                    Foreground="White" FontSize="36" FontFamily="./assets/fonts/#Morpheus"
-                 >
-                    Happy New Core!
-                </TextBlock>-->
-                <Button Style="{StaticResource BigButton}"
-                    Grid.Column="1" Margin="0,10,10,0" HorizontalAlignment="Right" VerticalAlignment="Top"
-                    Click="btnForums_Click"
-                >
-                    Forums
-                </Button>
-                <!--<Button Style="{StaticResource BigButton}"
-                    Grid.Column="1" Margin="0,75,10,0" HorizontalAlignment="Right" VerticalAlignment="Top"
-                    Click="btnStatus_Click"        
-                >
-                    Status
-                </Button>-->
-            </Grid>
-        </Border>
-
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="220"/>
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="1">
-                <TextBlock 
-                Margin="0,0,30,18" VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                Foreground="White" FontSize="16" FontFamily="./assets/fonts/#Friz Quadrata Std"
-                >
-                Server Status:
-                </TextBlock>
-                <Ellipse Margin="90,0,0,20" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="16" Height="16">
-                    <Ellipse.Fill>
-                        <RadialGradientBrush>
-                            <RadialGradientBrush.Transform>
-                                <TransformGroup>
-                                    <ScaleTransform/>
-                                    <SkewTransform/>
-                                    <RotateTransform/>
-                                    <TranslateTransform X="6" Y="-4"/>
-                                </TransformGroup>
-                            </RadialGradientBrush.Transform>
-                            <GradientStop x:Name="srvStatusIndicator" Color="#333333" Offset="1"/>
-                            <GradientStop Color="#FFF" Offset="0"/>
-                        </RadialGradientBrush>
-                    </Ellipse.Fill>
-
-                </Ellipse>
-            </Grid>
+        <!-- Side menu -->
+        <Grid Grid.Column="0" Grid.Row="2" Margin="27,10,0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"></RowDefinition>
+                <RowDefinition Height="1*"></RowDefinition>
+                <RowDefinition Height="1*"></RowDefinition>
+                <RowDefinition Height="1*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Button Name="btnHomePage" Grid.Row="0" Style="{StaticResource PageButtonStyle}" Margin="0,0,0,5" IsEnabled="False" Click="btnFrameControl_Click">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontFamily="./assets/fonts/#Morpheus" Text="Home"/>
+            </Button>
+            <Button Name="btnPatchesPage" Grid.Row="1"  Style="{StaticResource PageButtonStyle}" Margin="0,0,0,5" IsEnabled="True" Click="btnFrameControl_Click">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontFamily="./assets/fonts/#Morpheus" Text="Patches"/>
+            </Button>
+            <Button Name="btnAddonsPage" Grid.Row="2"  Style="{StaticResource PageButtonStyle}" Margin="0,0,0,5" IsEnabled="True" Click="btnFrameControl_Click">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontFamily="./assets/fonts/#Morpheus" Text="Addons"/>
+            </Button>
+            <Button Name="btnSettingsPage" Grid.Row="3"  Style="{StaticResource PageButtonStyle}" Margin="0,0,0,0" IsEnabled="True" Click="btnFrameControl_Click">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontFamily="./assets/fonts/#Morpheus" Text="Settings"/>
+            </Button>
         </Grid>
 
-        <Grid Grid.Row="3">
+        <!--<Border Grid.Column="1" Grid.Row="2" CornerRadius="2" BorderBrush="#1A1D1A" BorderThickness="1"  Margin="10" >-->
+            <Frame Grid.Column="1" Grid.Row="2"  Name="MainContentFrame" NavigationUIVisibility="Hidden" Margin="10,10,10,10"></Frame>
+        <!--</Border>-->
+
+        <Grid Grid.Column="1" Grid.Row="3" Margin="0,0,17,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="1*"/>

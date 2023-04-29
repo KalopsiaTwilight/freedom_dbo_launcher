@@ -27,6 +27,7 @@
     <None Remove="assets\images\HighRes Parchment.jpg" />
     <None Remove="assets\MORPHEUS.TTF" />
     <None Remove="data\google-credentials.json" />
+	<None Remove="FodyWeavers.xml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,14 +39,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="LoadingSpinner.WPF" Version="1.0.0" />
+    <PackageReference Include="MediatR" Version="12.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
     <PackageReference Include="Serilog" Version="2.12.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="ValueConverters" Version="3.0.26" />
   </ItemGroup>
 
   <ItemGroup>

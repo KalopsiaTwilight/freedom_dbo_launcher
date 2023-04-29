@@ -2,6 +2,7 @@
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -26,17 +27,15 @@ namespace FreedomClient.Controls
     public partial class CyclingBackgroundImage : UserControl
     {
         private Timer? _timer;
-        private List<string> _images;
         private int _currentIndex;
         public ILogger<CyclingBackgroundImage>? Logger;
 
         public CyclingBackgroundImage()
         {
             InitializeComponent();
-            _images = new List<string>();
         }
 
-        private void UpdateVisualState(object? state)
+        public static void UpdateVisualState(object? state)
         {
             var me = state as CyclingBackgroundImage;
             if (me == null)
@@ -50,31 +49,31 @@ namespace FreedomClient.Controls
             Thread.Sleep(2200);
             me.Dispatcher.Invoke(() =>
             {
-                _currentIndex = (_currentIndex + 1) % _images.Count;
-                me.Image1Source = SafeGetImageAtIndex(_currentIndex);
-                me.Image2Source = SafeGetImageAtIndex((_currentIndex + 1) % _images.Count);
+                me._currentIndex = (me._currentIndex + 1) % me.ImagePaths.Count;
+                me.Image1Source = me.SafeGetImageAtIndex(me._currentIndex);
+                me.Image2Source = me.SafeGetImageAtIndex((me._currentIndex + 1) % me.ImagePaths.Count);
                 VisualStateManager.GoToState(me, "Determinate", true);
             });
         }
 
         private BitmapImage SafeGetImageAtIndex(int index)
         {
-            if (_images.Count == 0)
+            if (ImagePaths.Count == 0)
             {
                 return new BitmapImage();
             }
-            if (index >= _images.Count)
+            if (index >= ImagePaths.Count)
             {
-                index = _images.Count - 1;
+                index = ImagePaths.Count - 1;
             }
             try
             {
-                return new BitmapImage(new Uri(_images[index]));
+                return new BitmapImage(new Uri(ImagePaths[index]));
             }
             // Corrupted File
             catch (NotSupportedException)
             {
-                var filePath = _images[index];
+                var filePath = ImagePaths[index];
                 Dispatcher.InvokeAsync(async () =>
                 {
                     await Task.Delay(5000);
@@ -84,38 +83,38 @@ namespace FreedomClient.Controls
                     }
                     catch { }
                 });
-                _images.RemoveAt(index);
+                ImagePaths.RemoveAt(index);
                 return SafeGetImageAtIndex(index);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger?.LogError(ex, null);
                 return new BitmapImage();
             }
         }
 
-        private void OnImagePathsChange()
+        public static void OnImagePathsChange(DependencyObject dObject, DependencyPropertyChangedEventArgs e)
         {
-            if (_timer != null)
+            if (dObject is CyclingBackgroundImage me)
             {
-                _timer.Dispose();
-            }
-            if (_images.Count > 0)
-            {
-                Image1Source = SafeGetImageAtIndex(0);
-            }
-            if (_images.Count > 1)
-            {
-                Image2Source = SafeGetImageAtIndex(1);
-                _currentIndex = 0;
-                _timer = new Timer(new TimerCallback(UpdateVisualState), this, 10000, 10000);
+                me._timer?.Dispose();
+                if (me.ImagePaths.Count > 0)
+                {
+                    me.Image1Source = me.SafeGetImageAtIndex(0);
+                }
+                if (me.ImagePaths.Count > 1)
+                {
+                    me.Image2Source = me.SafeGetImageAtIndex(1);
+                    me._currentIndex = 0;
+                    me._timer = new Timer(new TimerCallback(UpdateVisualState), me, 10000, 10000);
+                }
             }
         }
 
-        public List<string> ImagePaths
+        public ObservableCollection<string> ImagePaths
         {
-            get => _images;
-            set { _images = value; OnImagePathsChange(); }
+            get { return (ObservableCollection<string>)GetValue(ImagePathsProperty); }
+            set { SetValue(ImagePathsProperty, value); }
         }
 
         private ImageSource Image1Source
@@ -131,14 +130,21 @@ namespace FreedomClient.Controls
 
         public static readonly DependencyProperty Image1SourceProperty =
             DependencyProperty.Register(
-                "Image1Source",
+                nameof(Image1Source),
                 typeof(ImageSource),
                 typeof(CyclingBackgroundImage));
 
         public static readonly DependencyProperty Image2SourceProperty =
             DependencyProperty.Register(
-                "Image2Source",
+                nameof(Image2Source),
                 typeof(ImageSource),
                 typeof(CyclingBackgroundImage));
+
+        public static readonly DependencyProperty ImagePathsProperty =
+            DependencyProperty.Register(
+                nameof(ImagePaths),
+                typeof(ObservableCollection<string>),
+                typeof(CyclingBackgroundImage),
+                new PropertyMetadata(new PropertyChangedCallback(OnImagePathsChange)));
     }
 }

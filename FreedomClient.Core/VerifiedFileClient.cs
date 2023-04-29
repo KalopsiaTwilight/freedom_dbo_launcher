@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
+using Google.Apis.Logging;
 using Google.Apis.Services;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
@@ -34,7 +35,6 @@ namespace FreedomClient.Core
         public event EventHandler<ExceptionDuringVerifyEventArgs>? ExceptionDuringVerify;
 
         public Stopwatch DownloadTimer { get; private set; }
-
 
         public VerifiedFileClient(IHttpClientFactory clientFactory)
         {
@@ -81,10 +81,16 @@ namespace FreedomClient.Core
         {
             var httpClient = _clientFactory.CreateClient();
             httpClient.BaseAddress = new Uri(Constants.CdnUrl);
+            var debugTimer = Stopwatch.StartNew();
             var manifestResp = await httpClient.GetAsync("/manifest.json", cancellationToken);
+            debugTimer.Stop();
+            Debug.WriteLine($"Got manifest response in {debugTimer.ElapsedMilliseconds} ms");
             manifestResp.EnsureSuccessStatusCode();
             var manifestText = await manifestResp.Content.ReadAsStringAsync();
+            debugTimer.Restart();
             var signatureResp = await httpClient.GetAsync("/signature", cancellationToken);
+            Debug.WriteLine($"Got signature response in {debugTimer.ElapsedMilliseconds} ms");
+            signatureResp.EnsureSuccessStatusCode();
             var signatureBytes = await signatureResp.Content.ReadAsByteArrayAsync();
 
             // Verify PCKS7 signature against known public certificate

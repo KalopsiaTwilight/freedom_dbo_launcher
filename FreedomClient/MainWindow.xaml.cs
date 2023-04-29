@@ -1,24 +1,17 @@
-﻿using FreedomClient.Controls;
-using FreedomClient.Core;
-using FreedomClient.Infrastructure;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Drive.v3;
-using Google.Apis.Services;
-using Microsoft.Extensions.FileProviders;
+﻿using FreedomClient.Core;
+using FreedomClient.Models;
+using FreedomClient.Views.WoW;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Ookii.Dialogs.Wpf;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
+using System.Windows.Controls;
 
 namespace FreedomClient
 {
@@ -32,23 +25,23 @@ namespace FreedomClient
         private readonly ILogger<MainWindow> _logger;
         private readonly Stopwatch _overallTimer;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IServiceProvider _serviceProvider;
 
         private CancellationTokenSource _downloadTokenSource;
         private long _totalBytesDownloaded;
         private long _totalBytesVerified;
         private long _totalBytesToProcess;
 
-        private Timer _serverStatusTimer;
-
-        public MainWindow(VerifiedFileClient fileClient, ApplicationState state, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory)
+        public MainWindow(IServiceProvider serviceProvider)
         {
             _downloadTokenSource = new CancellationTokenSource();
             _overallTimer = new Stopwatch();
+            _serviceProvider = serviceProvider;
 
-            _httpClientFactory = httpClientFactory;
-            _fileClient = fileClient;
-            _appState = state;
-            _logger = loggerFactory.CreateLogger<MainWindow>();
+            _httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+            _fileClient = serviceProvider.GetRequiredService<VerifiedFileClient>();
+            _appState = serviceProvider.GetRequiredService<ApplicationState>();
+            _logger = serviceProvider.GetRequiredService<ILogger<MainWindow>>();
             _totalBytesDownloaded = 0;
             _totalBytesVerified = 0;
             _totalBytesToProcess = 0;
@@ -66,7 +59,7 @@ namespace FreedomClient
 
 
             InitializeComponent();
-            if (state.LoadState == ApplicationLoadState.NotInstalled)
+            if (_appState.LoadState == ApplicationLoadState.NotInstalled)
             {
                 btnMain.Content = "Install";
             }
@@ -78,13 +71,8 @@ namespace FreedomClient
                 CheckForUpdates();
             }
 
-            bgImage.ImagePaths = _appState.LauncherImages
-                .Where(x => File.Exists(x))
-                .ToList();
-            bgImage.Logger = loggerFactory.CreateLogger<CyclingBackgroundImage>();
-            UpdateLauncherImages();
+            MainContentFrame.Content = _serviceProvider.GetRequiredService<WoWHomePageView>();
 
-            _serverStatusTimer = new Timer(new TimerCallback(UpdateServerStatus), null, 0, 10000);
             TestLatestVersion();
         }
 
@@ -194,6 +182,7 @@ namespace FreedomClient
             }
             return true;
         }
+
 
         public async void VerifyInstall(bool completeReset = false)
         {
@@ -380,15 +369,6 @@ namespace FreedomClient
             }
         }
 
-        private void btnForums_Click(object sender, RoutedEventArgs e)
-        {
-            var pStart = new ProcessStartInfo()
-            {
-                UseShellExecute = true,
-                FileName = "https://wowfreedom-rp.com/f/"
-            };
-            Process.Start(pStart);
-        }
         private void btnStatus_Click(object sender, RoutedEventArgs e)
         {
             var pStart = new ProcessStartInfo()
@@ -409,14 +389,6 @@ namespace FreedomClient
             WindowState = WindowState.Minimized;
         }
 
-        private void btnSettings_Click(object sender, RoutedEventArgs e)
-        {
-            var window = new SettingsWindow(this, _appState);
-            window.Owner = this;
-            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            window.ShowDialog();
-        }
-
         private void btnCancelDownload_Click(object sender, RoutedEventArgs e)
         {
             _downloadTokenSource.Cancel();
@@ -427,24 +399,26 @@ namespace FreedomClient
             btnMain.IsEnabled = _appState.LoadState == ApplicationLoadState.NotInstalled ? false : true;
         }
 
-        private async void CleanupInstallFiles()
+        private void btnFrameControl_Click(object sender, RoutedEventArgs e)
         {
-            // Wait for cancellation to propogate
-            await Task.Delay(1000);
-            // Cleanup files
-            foreach (var file in Directory.EnumerateFiles(_appState.InstallPath!, "*", SearchOption.AllDirectories))
+            if (sender is not Button btn)
             {
-                var key = file.Substring(_appState.InstallPath!.Length + 1).Replace("\\", "/");
-                if (_appState.LastManifest.ContainsKey(key))
-                {
-                    File.Delete(file);
-                }
+                return;
             }
-            RemoveEmptyDirectories(_appState.InstallPath!);
-            Dispatcher.Invoke(() =>
+
+            btnHomePage.IsEnabled = true;
+            btnAddonsPage.IsEnabled = true;
+            btnPatchesPage.IsEnabled= true;
+            btnSettingsPage.IsEnabled= true;
+            btn.IsEnabled = false;
+
+            switch(btn.Name)
             {
-                txtProgress.Text = "Installation cancelled.";
-            });
+                case "btnHomePage": MainContentFrame.Content = _serviceProvider.GetRequiredService<WoWHomePageView>(); break;
+                case "btnAddonsPage": MainContentFrame.Content = _serviceProvider.GetRequiredService<WoWAddonsPageView>(); break;
+                case "btnPatchesPage": MainContentFrame.Content = _serviceProvider.GetRequiredService<WoWPatchesPageView>(); break;
+                case "btnSettingsPage": MainContentFrame.Content = _serviceProvider.GetRequiredService<WoWSettingsPageView>(); break;
+            }
         }
 
         private void MenuGrid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -595,95 +569,6 @@ namespace FreedomClient
 
         #endregion
 
-        private async void UpdateLauncherImages()
-        {
-            _logger.LogInformation("Updating launcher images...");
-            var credential = GoogleCredential
-                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()!).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
-                .CreateScoped(DriveService.Scope.Drive);
-            var service = new DriveService(new BaseClientService.Initializer()
-            {
-                ApplicationName = Constants.AppIdentifier,
-                HttpClientInitializer = credential
-            });
-            var listFilesRequest = service.Files.List();
-            listFilesRequest.SupportsAllDrives = true;
-            listFilesRequest.IncludeItemsFromAllDrives = true;
-            listFilesRequest.Q = $"'{Constants.LauncherImagesDriveFolderId}' in parents";
-            var listFilesResponse = await listFilesRequest.ExecuteAsync();
-            if (listFilesResponse == null)
-            {
-                _logger.LogError("Unable to download images from google drive");
-                return;
-            }
-            var imageCollection = new List<string>();
-            var launcherImagePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppIdentifier, "launcherImages");
-            if (!Directory.Exists(launcherImagePath))
-            {
-                Directory.CreateDirectory(launcherImagePath);
-            }
-            foreach (var file in listFilesResponse.Files)
-            {
-                var outputPath = Path.Combine(launcherImagePath, file.Name);
-                if (!File.Exists(outputPath))
-                {
-                    var downloadFileRequest = service.Files.Get(file.Id);
-                    downloadFileRequest.AcknowledgeAbuse = true;
-                    using (var fileStream = File.Create(outputPath))
-                    {
-                        var progress = await downloadFileRequest.DownloadAsync(fileStream);
-
-                        if (progress.BytesDownloaded == 0)
-                        {
-                            throw new InvalidDataException();
-                        }
-                    }
-                }
-                imageCollection.Add(outputPath);
-            }
-            imageCollection = imageCollection.OrderBy(x => Path.GetFileName(x)).ToList();
-            Dispatcher.Invoke(() =>
-            {
-                bgImage.ImagePaths = imageCollection;
-            });
-            // Clean up old images
-            foreach (var img in _appState.LauncherImages)
-            {
-                if (!imageCollection.Contains(img))
-                {
-                    File.Delete(img);
-                }
-            }
-            _appState.LauncherImages = imageCollection;
-            _logger.LogInformation("Launcher images updated!");
-        }
-
-        private async void UpdateServerStatus(object? state)
-        {
-            var client = _httpClientFactory.CreateClient();
-            var resp = await client.PostAsync(Constants.MinimanagerUrl + "/Data/StatusLinePartial", null);
-            Color toSet = Color.FromRgb(51, 51, 51);
-            if (resp.IsSuccessStatusCode)
-            {
-                var statusText = await resp.Content.ReadAsStringAsync();
-                var match = Regex.Match(statusText, ".*status-(\\w+)");
-                if (match.Success)
-                {
-                    switch (match.Groups[1].Value)
-                    {
-                        case "good": toSet = Color.FromRgb(76, 185, 68); break;
-                        case "loading": toSet = Color.FromRgb(245, 166, 91); break;
-                        case "bad": toSet = Color.FromRgb(137, 2, 62); break;
-                    }
-                }
-
-            }
-            await srvStatusIndicator.Dispatcher.BeginInvoke(() =>
-            {
-                srvStatusIndicator.Color = toSet;
-            });
-        }
-
         private async void TestLatestVersion()
         {
             _logger.LogInformation("Checking for launcher updates...");
@@ -719,7 +604,6 @@ namespace FreedomClient
                 _logger.LogError(exc, null);
             }
         }
-
         private long CalculateTotalBytesToDownload(DownloadManifest manifest)
         {
             long result = 0;

@@ -1,0 +1,71 @@
+﻿<UserControl x:Name="userControl" x:Class="FreedomClient.Views.WoW.PatchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:FreedomClient.ViewModels.WoW"
+             xmlns:local="clr-namespace:FreedomClient.Views.WoW"
+             xmlns:cnvt="clr-namespace:ValueConverters;assembly=ValueConverters"
+             mc:Ignorable="d" 
+             d:DesignHeight="120" d:DesignWidth="828" d:Background="White"
+             d:DataContext="{d:DesignInstance Type=vm:PatchViewModel, IsDesignTimeCreatable=True}">
+    <UserControl.Resources>
+        <cnvt:BoolToStringConverter x:Key="InstallBtnTextConverter" TrueValue="{StaticResource txt_WoW_Patches_Installed}" FalseValue="{StaticResource txt_WoW_Patches_Installed}"/>
+        <cnvt:BoolNegationConverter x:Key="InstallBtnEnabledConverter" TrueValue="False"  FalseValue="True"/>
+    </UserControl.Resources>
+    <Grid Height="120" VerticalAlignment="Top" x:Name="mainGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"/>
+            <ColumnDefinition Width="390"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Image Source="{Binding Patch.ImageSrc}"  HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0" Stretch="Fill"></Image>
+        <TextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                   FontSize="24" FontFamily="{StaticResource Morpheus}" 
+                   Margin="5,0,0,0"
+                   Text="{Binding Patch.Title}"
+                   Grid.Column="1"
+                />
+        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top"
+                           TextWrapping="WrapWithOverflow"
+                   FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
+                   Margin="5,35,0,0"
+                   Grid.Column="1"
+                   Text="{Binding Patch.Description}"
+                />
+
+
+        <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top"
+                           TextWrapping="WrapWithOverflow"
+                   FontSize="14" FontFamily="{StaticResource Fritz Quadrata}"  
+                   Margin="60,10,0,0"
+                   Text="{StaticResource txt_WoW_Patches_Author}"
+                />
+        <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top"
+                           TextWrapping="WrapWithOverflow"
+                   FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
+                   Margin="60,25,0,0"
+                   Text="{StaticResource txt_WoW_Patches_Version}"
+                />
+
+        <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top"
+                           TextWrapping="WrapWithOverflow"
+                   FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
+                   Margin="120,25,0,0"
+                   Text="{Binding Patch.Version}"
+                />
+        <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top"
+                           TextWrapping="WrapWithOverflow"
+                   FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
+                   Margin="120,10,0,0"
+                   Text="{Binding Patch.Author}"
+                />
+
+        <Button Grid.Column="2" Style="{StaticResource BigButton}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"
+                Command="{Binding InstallCommand}"
+                Content="{Binding Patch.IsInstalled, Converter={StaticResource InstallBtnTextConverter}}"
+                IsEnabled="{Binding Patch.IsInstalled, Converter={StaticResource InstallBtnEnabledConverter}}"
+         />
+    </Grid>
+</UserControl>

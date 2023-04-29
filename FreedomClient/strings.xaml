@@ -1,0 +1,35 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:clr="clr-namespace:System;assembly=mscorlib"
+                    >
+    <clr:String x:Key="txt_MainWindow_TT_Minimize">Minimize the launcher</clr:String>
+    <clr:String x:Key="txt_MainWindow_TT_Close">Close the laucher</clr:String>
+   
+    <clr:String x:Key="txt_General_Loading">Loading...</clr:String>
+
+    <clr:String x:Key="txt_WoW_Shell_Title">FREEDOM WOW</clr:String>
+    <clr:String x:Key="txt_WoW_Shell_PageHomeBtn">Home</clr:String>
+    <clr:String x:Key="txt_WoW_Shell_PagePatchesBtn">Patches</clr:String>
+    <clr:String x:Key="txt_WoW_Shell_PageAddonsBtn">Addons</clr:String>
+    <clr:String x:Key="txt_WoW_Shell_PageSettingsBtn">Settings</clr:String>
+    <clr:String x:Key="txt_WoW_Shell_LaunchBtn">Launch</clr:String>
+    <clr:String x:Key="txt_WoW_Shell_InstallBtn">Install</clr:String>
+    <clr:String x:Key="txt_WoW_Shell_TT_CancelOperationBtn">Cancel Operation</clr:String>
+
+    <clr:String x:Key="txt_WoW_Home_Forums">Forums</clr:String>
+    <clr:String x:Key="txt_WoW_Home_ServerStatus">Server Status:</clr:String>
+    
+    <clr:String x:Key="txt_WoW_Patches_Install">Install</clr:String>
+    <clr:String x:Key="txt_WoW_Patches_Installed">Installed</clr:String>
+    <clr:String x:Key="txt_WoW_Patches_Author">Author:</clr:String>
+    <clr:String x:Key="txt_WoW_Patches_Version">Version:</clr:String>
+
+
+    <clr:String x:Key="txt_WoW_Settings_InstallDir">Install Directory</clr:String>
+    <clr:String x:Key="txt_WoW_Settings_LogDir">Log Directory</clr:String>
+    <clr:String x:Key="txt_WoW_Settings_ResetInstall">Reset Install</clr:String>
+    <clr:String x:Key="txt_WoW_Settings_TT_LogDir">Copy Path</clr:String>
+    <clr:String x:Key="txt_WoW_Settings_TT_InstallDir">Change Path</clr:String>
+    
+
+</ResourceDictionary>
