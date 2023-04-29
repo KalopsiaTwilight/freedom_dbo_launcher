@@ -28,7 +28,7 @@ namespace FreedomClient.ViewModels
         public ICommand? MinimizeCommand { get; set; }
         public ICommand? CloseCommand { get; set; }
         public object CurrentFrame { get; set; }
-        public Views.MainWindow? MainWindow { get; set; }
+        public MainWindow? MainWindow { get; set; }
 
         public MainWindowViewModel(IServiceProvider serviceProvider)
         {

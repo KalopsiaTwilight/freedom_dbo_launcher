@@ -52,6 +52,22 @@ namespace FreedomClient.ViewModels.WoW
                     CurrentFrame = _serviceProvider.GetRequiredService(frameType);
                 }    
             });
+
+            InstallCommand = new RelayCommand(
+                (_) => ApplicationState.LoadState == ApplicationLoadState.NotInstalled,
+                (_) =>
+                {
+                    mediator.Send(new DownloadWoWClientFilesCommand());
+                }
+            );
+
+            LaunchCommand = new RelayCommand(
+                (_) => !ApplicationState.UIOperation.IsBusy,
+                (_) =>
+                {
+                    mediator.Send(new LaunchWoWCommand());
+                }
+            );
         }
     }
 }

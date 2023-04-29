@@ -17,6 +17,7 @@ using FreedomClient.DAL;
 using System.Collections.Generic;
 using FreedomClient.ViewModels;
 using System.Net.Http.Headers;
+using FreedomClient.Views;
 
 namespace FreedomClient
 {
@@ -37,7 +38,7 @@ namespace FreedomClient
             Logger = ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<App>();
             Logger.LogInformation($"Launcher starting up... Running version: {ApplicationState!.Version}!");
             SetupExceptionHandling();
-            ServiceProvider.GetRequiredService<Views.MainWindow>().Show();
+            ServiceProvider.GetRequiredService<MainWindow>().Show();
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -50,7 +51,6 @@ namespace FreedomClient
         {
             services.AddSingleton(ApplicationState!);
             services.AddSingleton(typeof(MainWindow));
-            services.AddSingleton(typeof(Views.MainWindow));
 
             var singletonTypes = new List<Type>();
 
@@ -93,7 +93,7 @@ namespace FreedomClient
             services.AddTransient<VerifiedFileClient>();
             services.AddHttpClient(Microsoft.Extensions.Options.Options.DefaultName, (opt) =>
             {
-                opt.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("WoWFreedom Launcher"));
+                opt.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("WoWFreedomLauncher", null));
             });
         }
 
