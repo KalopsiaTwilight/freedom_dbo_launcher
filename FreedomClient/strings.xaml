@@ -23,6 +23,11 @@
     <clr:String x:Key="txt_WoW_Patches_Installed">Installed</clr:String>
     <clr:String x:Key="txt_WoW_Patches_Author">Author:</clr:String>
     <clr:String x:Key="txt_WoW_Patches_Version">Version:</clr:String>
+    
+    <clr:String x:Key="txt_WoW_Addons_Install">Install</clr:String>
+    <clr:String x:Key="txt_WoW_Addons_Installed">Installed</clr:String>
+    <clr:String x:Key="txt_WoW_Addons_Author">Author:</clr:String>
+    <clr:String x:Key="txt_WoW_Addons_Version">Version:</clr:String>
 
 
     <clr:String x:Key="txt_WoW_Settings_InstallDir">Install Directory</clr:String>

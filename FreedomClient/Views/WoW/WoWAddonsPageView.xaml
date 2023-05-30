@@ -4,11 +4,16 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:FreedomClient.Views.WoW"
+      xmlns:vm="clr-namespace:FreedomClient.ViewModels.WoW"
       mc:Ignorable="d" 
       d:DesignHeight="295" d:DesignWidth="828"
+      d:DataContext="{d:DesignInstance Type=vm:WoWAddonsPageViewModel, IsDesignTimeCreatable=False}"
       Title="WoWAddonsPage">
 
     <Grid>
-        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="56" FontFamily="{StaticResource Morpheus}" Text="Addons"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <local:AddonsView DataContext="{Binding AddonsViewModel}"/>
     </Grid>
 </Page>

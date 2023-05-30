@@ -17,12 +17,14 @@ namespace FreedomClient.ViewModels.WoW
 
         public PatchesViewModel PatchesViewModel { get; set; }
 
-        public WoWPatchesPageViewModel(IServiceProvider serviceProvider)
+        public WoWPatchesPageViewModel(PatchesRepository repository)
         {
-            _patchesRepository = serviceProvider.GetRequiredService<PatchesRepository>();
+            _patchesRepository = repository;
 
-            PatchesViewModel = new PatchesViewModel();
-            PatchesViewModel.IsLoading = true;
+            PatchesViewModel = new PatchesViewModel
+            {
+                IsLoading = true
+            };
             _patchesRepository.GetPatches()
                 .ContinueWith(async (x) =>
                 {

@@ -1,4 +1,5 @@
-﻿using FreedomClient.ViewModels.WoW;
+﻿using FreedomClient.Models;
+using FreedomClient.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,18 +14,18 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ValueConverters;
 
 namespace FreedomClient.Views.WoW
 {
     /// <summary>
-    /// Interaction logic for WoWAddonsPageView.xaml
+    /// Interaction logic for AddonView.xaml
     /// </summary>
-    public partial class WoWAddonsPageView : Page
+    public partial class AddonView : UserControl
     {
-        public WoWAddonsPageView(WoWAddonsPageViewModel vm)
+        public AddonView()
         {
             InitializeComponent();
-            DataContext = vm;
         }
     }
 }
