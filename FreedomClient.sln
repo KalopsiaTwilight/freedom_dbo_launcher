@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreedomClient.Core", "Freed
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreedomManifestTool", "FreedomManifestTool\FreedomManifestTool.csproj", "{5DD0BB3E-271F-4704-A625-F2C8E2FE6218}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDriveStorageUploader", "GDriveStorageUploader\GDriveStorageUploader.csproj", "{D8FEB42F-DB4A-4169-82AC-EA3F2FC4BE2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDriveStorageUploader", "GDriveStorageUploader\GDriveStorageUploader.csproj", "{D8FEB42F-DB4A-4169-82AC-EA3F2FC4BE2B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

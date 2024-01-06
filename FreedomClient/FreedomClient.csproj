@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>assets\freedom_icon.ico</ApplicationIcon>
-	<Version>1.0.2</Version>
+	<Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -66,6 +66,10 @@
     <Resource Include="assets\images\btn_normal.png" />
     <Resource Include="assets\images\Grunge_v_by_struckdumb.jpg" />
     <Resource Include="assets\images\HighRes Parchment.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>
