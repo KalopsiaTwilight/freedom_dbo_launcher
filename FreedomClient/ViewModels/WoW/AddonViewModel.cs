@@ -12,6 +12,8 @@ namespace FreedomClient.ViewModels.WoW
 
         public ICommand? InstallCommand { get; set; }
 
+        public ICommand? RemoveCommand { get; set; }
+
         public AddonViewModel()
         {
             Addon = new Addon()

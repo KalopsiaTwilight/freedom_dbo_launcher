@@ -18,13 +18,19 @@ namespace FreedomClient.Models
             Description = string.Empty;
             Title = string.Empty;
             IsInstalled = false;
+            Manifest = string.Empty;
+            Signature = string.Empty;
         }
 
+        [AlsoNotifyFor(nameof(DisplayAuthor))]
         public string Author { get; set; }
+        public string DisplayAuthor => Author.Length > 20 ? string.Concat(Author.AsSpan(0, 17), "...") : Author;
         public string Version { get; set; }
         public string ImageSrc { get; set; }
         public string Description { get; set; }
         public string Title { get; set; }
         public bool IsInstalled { get; set; }
+        public string Manifest { get; set; }
+        public string Signature{ get; set; }
     }
 }

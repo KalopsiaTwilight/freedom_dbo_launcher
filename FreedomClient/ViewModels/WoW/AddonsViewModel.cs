@@ -16,13 +16,17 @@ namespace FreedomClient.ViewModels.WoW
         [AlsoNotifyFor("AddonViews")]
         public ICommand? InstallCommand { get; set; }
 
+        [AlsoNotifyFor("AddonViews")]
+        public ICommand? RemoveCommand { get; set; }
+
         public bool IsLoading { get; set; }
         public IEnumerable<AddonViewModel> AddonViews
         {
             get => Addons.Select(x => new AddonViewModel()
             {
                 Addon = x,
-                InstallCommand = InstallCommand
+                InstallCommand = InstallCommand,
+                RemoveCommand = RemoveCommand,
             });
         }
 

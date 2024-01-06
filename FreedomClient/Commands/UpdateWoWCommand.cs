@@ -77,7 +77,7 @@ namespace FreedomClient.Commands
                     var patchManifest = latestManifest.CreatePatchManifestFrom(_appState.LastManifest);
                     _appState.LoadState = ApplicationLoadState.CheckForUpdate;
                     _appState.UIOperation.Message = "Updating...";
-                    await _fileClient.VerifyFiles(patchManifest, _appState.InstallPath, uiCancelToken);
+                    await _fileClient.EnsureFilesInManifest(patchManifest, _appState.InstallPath, uiCancelToken);
                     _appState.UIOperation.ProgressReport = string.Empty;
 
                     uiCancelToken.ThrowIfCancellationRequested();

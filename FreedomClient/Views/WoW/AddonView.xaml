@@ -10,8 +10,8 @@
              d:DesignHeight="120" d:DesignWidth="828" d:Background="White"
              d:DataContext="{d:DesignInstance Type=vm:AddonViewModel, IsDesignTimeCreatable=True}">
     <UserControl.Resources>
-        <cnvt:BoolToStringConverter x:Key="InstallBtnTextConverter" TrueValue="{StaticResource txt_WoW_Addons_Install}" FalseValue="{StaticResource txt_WoW_Addons_Installed}"/>
-        <cnvt:BoolNegationConverter x:Key="InstallBtnEnabledConverter" TrueValue="False"  FalseValue="True"/>
+        <cnvt:BoolToVisibilityConverter x:Key="InstallBtnVisibility" TrueValue="Hidden" FalseValue="Visible" />
+        <cnvt:BoolToVisibilityConverter x:Key="RemoveBtnVisibility" TrueValue="Visible" FalseValue="Hidden" />
     </UserControl.Resources>
     <Grid Height="120" VerticalAlignment="Top" x:Name="mainGrid">
         <Grid.ColumnDefinitions>
@@ -20,17 +20,17 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Image Source="{Binding Addon.ImageSrc}"  HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0" Stretch="Fill"></Image>
+        <Image Source="{Binding Addon.ImageSrc}"  HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Stretch="Uniform"></Image>
         <TextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" 
                    FontSize="24" FontFamily="{StaticResource Morpheus}" 
-                   Margin="5,0,0,0"
+                   Margin="10,0,0,0"
                    Text="{Binding Addon.Title}"
                    Grid.Column="1"
                 />
         <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top"
                            TextWrapping="WrapWithOverflow"
                    FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
-                   Margin="5,35,0,0"
+                   Margin="10,35,0,0"
                    Grid.Column="1"
                    Text="{Binding Addon.Description}"
                 />
@@ -56,16 +56,25 @@
                    Text="{Binding Addon.Version}"
                 />
         <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top"
-                           TextWrapping="WrapWithOverflow"
+                           TextWrapping="NoWrap"
                    FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
                    Margin="120,10,0,0"
-                   Text="{Binding Addon.Author}"
+                   Text="{Binding Addon.DisplayAuthor}"
                 />
 
         <Button Grid.Column="2" Style="{StaticResource BigButton}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"
                 Command="{Binding InstallCommand}"
-                Content="{Binding Addon.IsInstalled, Converter={StaticResource InstallBtnTextConverter}}"
-                IsEnabled="{Binding Addon.IsInstalled, Converter={StaticResource InstallBtnEnabledConverter}}"
+                CommandParameter="{Binding Addon}"
+                Content="{StaticResource txt_WoW_Addons_Install}"
+                IsEnabled="True"
+                Visibility="{Binding Addon.IsInstalled, Converter={StaticResource InstallBtnVisibility}}"
+         />
+        <Button Grid.Column="2" Style="{StaticResource BigButton}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"
+                Command="{Binding RemoveCommand}"
+                CommandParameter="{Binding Addon}"
+                Content="{StaticResource txt_WoW_Addons_Remove}"
+                IsEnabled="True"
+                Visibility="{Binding Addon.IsInstalled, Converter={StaticResource RemoveBtnVisibility}}"
          />
     </Grid>
 </UserControl>

@@ -23,7 +23,7 @@ namespace FreedomClient.Commands
 
     public class DownloadWoWClientFilesCommandHandler : FileClientUIOperationCommandHandler, IRequestHandler<DownloadWoWClientFilesCommand>
     {
-        public DownloadWoWClientFilesCommandHandler(VerifiedFileClient fileClient, ApplicationState appState, ILogger<LaunchWoWCommandHandler> logger)
+        public DownloadWoWClientFilesCommandHandler(VerifiedFileClient fileClient, ApplicationState appState, ILogger<DownloadWoWClientFilesCommandHandler> logger)
             : base(fileClient, appState, logger)
         {
         }
@@ -73,7 +73,7 @@ namespace FreedomClient.Commands
                     Directory.CreateDirectory(_appState.InstallPath);
                 }
 
-                await _fileClient.VerifyFiles(manifest, _appState.InstallPath, _appState.UIOperation.CancellationTokenSource.Token);
+                await _fileClient.EnsureFilesInManifest(manifest, _appState.InstallPath, _appState.UIOperation.CancellationTokenSource.Token);
 
                 _appState.UIOperation.Progress = 100;
                 _appState.UIOperation.Message = "Successfully installed! Client is now ready to launch";

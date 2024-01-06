@@ -1,5 +1,6 @@
 ﻿using FreedomClient.Core;
 using FreedomClient.Models;
+using FreedomClient.Utilities;
 using Google.Apis.Logging;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -41,7 +42,7 @@ namespace FreedomClient.Commands
                 _appState.LoadState = ApplicationLoadState.VerifyingFiles;
                 var manifest = _appState.LastManifest;
 
-                await _fileClient.VerifyFiles(manifest, _appState.InstallPath!, _appState.UIOperation.CancellationTokenSource.Token);
+                await _fileClient.EnsureFilesInManifest(manifest, _appState.InstallPath!, _appState.UIOperation.CancellationTokenSource.Token);
                 StopClientOperation();
                 _logger.LogInformation("Installation restored!");
 
@@ -72,7 +73,7 @@ namespace FreedomClient.Commands
                             }
                         }
                     }
-                    RemoveEmptyDirectories(_appState.InstallPath!);
+                    FileSystemUtilities.RemoveEmptyDirectories(_appState.InstallPath!);
                     _logger.LogInformation("Files not included with install removed!");
                 }
                 _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
@@ -87,16 +88,5 @@ namespace FreedomClient.Commands
             }
         }
 
-        void RemoveEmptyDirectories(string path)
-        {
-            foreach (var subDirectory in Directory.GetDirectories(path))
-            {
-                RemoveEmptyDirectories(subDirectory);
-                if (Directory.EnumerateFiles(subDirectory, "*", SearchOption.AllDirectories).Count() == 0)
-                {
-                    Directory.Delete(subDirectory);
-                }
-            }
-        }
     }
 }

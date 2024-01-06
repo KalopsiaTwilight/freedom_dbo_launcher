@@ -1,4 +1,6 @@
-﻿using FreedomClient.Models;
+﻿using FreedomClient.Core;
+using FreedomClient.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,26 +13,31 @@ namespace FreedomClient.DAL
     public class AddonsRepository: IRepository
     {
         private HttpClient _httpClient;
-        public AddonsRepository(HttpClient httpClient)
+        private ApplicationState _appState;
+        public AddonsRepository(HttpClient httpClient, ApplicationState appState)
         {
             _httpClient = httpClient;
+            _appState = appState;
         }
 
         public async Task<List<Addon>> GetAddons()
         {
-            // TODO: Call API / retrieve json config.
-            await Task.Delay(1000);
-            return new List<Addon>
+            var resp = await _httpClient.GetAsync(Constants.CdnUrl + "/client_content/addons.json");
+            resp.EnsureSuccessStatusCode();
+            var addonsJson = await resp.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<List<Addon>>(addonsJson);
+            if (result == null)
             {
-                new Addon {
-                    Title = "Mock Addon 1",
-                    Description = "This is a sample addon that I made to show you what an addon could look like.",
-                    Author = "KalopsiaTwilight",
-                    ImageSrc = "https://placekitten.com/180/120",
-                    IsInstalled = false,
-                    Version = "1.0.0"
+                result = new List<Addon>();
+            }
+            foreach(var addon in result)
+            {
+                if (_appState.InstalledAddons.ContainsKey(addon.Title))
+                {
+                    addon.IsInstalled = true;
                 }
-            };
+            }
+            return result;
         }
     }
 }

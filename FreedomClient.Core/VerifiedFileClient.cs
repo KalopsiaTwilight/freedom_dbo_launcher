@@ -29,6 +29,7 @@ namespace FreedomClient.Core
         public event EventHandler<ExceptionDuringDownloadEventArgs>? ExceptionDuringDownload;
         public event EventHandler<ManifestDownloadStartedEventArgs>? ManifestDownloadStarted;
         public event EventHandler<ManifestDownloadCompletedEventArgs>? ManifestDownloadCompleted;
+        public event EventHandler<ManifestVerificationStartedEventArgs>? ManifestVerificationStarted;
         public event EventHandler<FileVerifyStartedEventArgs>? FileVerifyStarted;
         public event EventHandler<FileVerifyCompletedEventArgs>? FileVerifyCompleted;
         public event EventHandler<FileVerifyProgressEventArgs>? FileVerifyProgress;
@@ -43,8 +44,9 @@ namespace FreedomClient.Core
             DownloadTimer = new Stopwatch();
         }
 
-        public async Task VerifyFiles(DownloadManifest manifest, string installDirectory, CancellationToken cancellationToken)
+        public async Task EnsureFilesInManifest(DownloadManifest manifest, string installDirectory, CancellationToken cancellationToken)
         {
+            ManifestVerificationStarted?.Invoke(this, new ManifestVerificationStartedEventArgs(manifest));
             DownloadManifest toRedownload = new();
             // Verify integrity / version of all files in the manifest
             foreach (var entry in manifest)
@@ -77,18 +79,23 @@ namespace FreedomClient.Core
             }
         }
 
-        public async Task<DownloadManifest> GetManifest(CancellationToken cancellationToken)
+        public Task<DownloadManifest> GetManifest(CancellationToken cancellationToken)
+        {
+            return GetManifest(Constants.CdnUrl + "/manifest.json", Constants.CdnUrl + "/signature", cancellationToken);
+        }
+        public async Task<DownloadManifest> GetManifest(string manifestSrc, string signatureSrc, CancellationToken cancellationToken)
         {
             var httpClient = _clientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri(Constants.CdnUrl);
             var debugTimer = Stopwatch.StartNew();
-            var manifestResp = await httpClient.GetAsync("/manifest.json", cancellationToken);
+
+            var manifestResp = await httpClient.GetAsync(manifestSrc, cancellationToken);
             debugTimer.Stop();
             Debug.WriteLine($"Got manifest response in {debugTimer.ElapsedMilliseconds} ms");
             manifestResp.EnsureSuccessStatusCode();
             var manifestText = await manifestResp.Content.ReadAsStringAsync();
+
             debugTimer.Restart();
-            var signatureResp = await httpClient.GetAsync("/signature", cancellationToken);
+            var signatureResp = await httpClient.GetAsync(signatureSrc, cancellationToken);
             Debug.WriteLine($"Got signature response in {debugTimer.ElapsedMilliseconds} ms");
             signatureResp.EnsureSuccessStatusCode();
             var signatureBytes = await signatureResp.Content.ReadAsByteArrayAsync();
@@ -273,7 +280,13 @@ namespace FreedomClient.Core
 
                     if (progress.BytesDownloaded == 0)
                     {
-                        throw new InvalidDataException();
+                        if (progress.Exception != null)
+                        {
+                            throw progress.Exception;
+                        } else
+                        {
+                            throw new InvalidDataException();
+                        }
                     }
                 }
             }

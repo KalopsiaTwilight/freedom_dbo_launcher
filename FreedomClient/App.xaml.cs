@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using FreedomClient.ViewModels;
 using System.Net.Http.Headers;
 using FreedomClient.Views;
+using FreedomClient.Migrations;
 
 namespace FreedomClient
 {
@@ -139,10 +140,11 @@ namespace FreedomClient
                     ApplicationState ??= new ApplicationState();
                     
                     
-                    // TODO: Possible place to perform version upgrades
+                    if (ApplicationState.Version != new ApplicationState().Version)
+                    {
+                        AppStateMigrator.Migrate(ApplicationState);
+                    }
 
-
-                    ApplicationState.Version = new ApplicationState().Version;
                     // Check if install path still exists
                     if (!Directory.Exists(ApplicationState.InstallPath))
                     {

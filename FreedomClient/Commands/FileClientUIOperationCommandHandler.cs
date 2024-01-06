@@ -33,6 +33,7 @@ namespace FreedomClient.Commands
 
             // Wire up fileclient events
 
+            _fileClient.ManifestVerificationStarted += OnManifestVerificationStarted;
             _fileClient.ManifestDownloadStarted += OnManifestDownloadStarted;
             _fileClient.FileDownloadStarted += OnFileDownloadStart;
             _fileClient.FileDownloadProgress += OnFileDownloadProgress;
@@ -60,6 +61,14 @@ namespace FreedomClient.Commands
         private void OnManifestDownloadStarted(object? sender, ManifestDownloadStartedEventArgs e)
         {
             _totalBytesToProcess = CalculateTotalBytesToDownload(e.ToDownload) + e.ToDownload.Sum(x => x.Value.FileSize);
+            _totalBytesDownloaded = 0;
+            _totalBytesVerified = 0;
+            _operationTimer.Restart();
+        }
+
+        private void OnManifestVerificationStarted(object? sender, ManifestVerificationStartedEventArgs e)
+        {
+            _totalBytesToProcess = e.ToVerify.Sum(x => x.Value.FileSize);
             _totalBytesDownloaded = 0;
             _totalBytesVerified = 0;
             _operationTimer.Restart();
@@ -93,12 +102,15 @@ namespace FreedomClient.Commands
                 var totalDownloaded = _totalBytesDownloaded + e.TotalBytesRead;
                 var progress = (totalDownloaded + _totalBytesVerified) / (double)_totalBytesToProcess * 100;
                 var downloadedPMs = (totalDownloaded) / (double)_operationTimer.ElapsedMilliseconds;
+
                 var fileProgress = Math.Floor((double)e.TotalBytesRead / e.Entry.FileSize * 100);
                 var bytesPs = (double)e.TotalBytesRead / _fileClient.DownloadTimer.ElapsedMilliseconds * 1000;
-                var timeEst = TimeSpan.FromMilliseconds((_totalBytesToProcess / 2 - totalDownloaded) / downloadedPMs);
+                var timeEst = downloadedPMs > 0 
+                    ? TimeSpan.FromMilliseconds((_totalBytesToProcess / 2 - totalDownloaded) / downloadedPMs).ToString("hh\\:mm\\:ss")
+                    : "Unknown";
                 _appState.UIOperation.Message = $"Downloading {Path.GetFileName(e.FilePath)}... ({BytesToString((long)Math.Round(bytesPs))}/s)";
                 _appState.UIOperation.Progress = progress;
-                _appState.UIOperation.ProgressReport = $"{BytesToString(totalDownloaded, 1)} / {BytesToString(_totalBytesToProcess / 2, 1)} ({timeEst:hh\\:mm\\:ss} remaining)";
+                _appState.UIOperation.ProgressReport = $"{BytesToString(totalDownloaded, 1)} / {BytesToString(_totalBytesToProcess / 2, 1)} ({timeEst} remaining)";
             }
         }
 
@@ -123,11 +135,15 @@ namespace FreedomClient.Commands
             {
                 _appState.UIOperation.Message = "Could not validate download. Please contact a dev for help.";
                 _appState.UIOperation.IsCancelled = true;
+                _appState.UIOperation.Progress = 0;
+                _appState.UIOperation.ProgressReport = "";
             }
             else
             {
                 _appState.UIOperation.IsCancelled = true;
                 _appState.UIOperation.Message = "An error occured during download. Please try again.";
+                _appState.UIOperation.Progress = 0;
+                _appState.UIOperation.ProgressReport = "";
             }
         }
 

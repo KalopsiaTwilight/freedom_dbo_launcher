@@ -117,4 +117,14 @@ namespace FreedomClient.Core
             Exception = exception;
         }
     }
+
+    public class ManifestVerificationStartedEventArgs: EventArgs
+    {
+        public DownloadManifest ToVerify { get; set; }
+
+        public ManifestVerificationStartedEventArgs(DownloadManifest toVerify)
+        {
+            ToVerify = toVerify;
+        }
+    }
 }
