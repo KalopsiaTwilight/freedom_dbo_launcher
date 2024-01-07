@@ -75,10 +75,15 @@ namespace FreedomClient.Commands
                     }
                     FileSystemUtilities.RemoveEmptyDirectories(_appState.InstallPath!);
                     _logger.LogInformation("Files not included with install removed!");
+
+                    _appState.InstalledPatches.Clear();
+                    _appState.InstalledAddons.Clear();
+                    _appState.AvailableAddons.ForEach(x => x.IsInstalled = false);
+                    _appState.AvailablePatches.ForEach(x => x.IsInstalled = false);
                 }
                 _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
                 _appState.UIOperation.Progress = 100;
-                _appState.UIOperation.Message = "Failed to delete extra files, install files were restored.";
+                _appState.UIOperation.Message = "Installation succesfully restored!.";
                 _appState.UIOperation.ProgressReport = "";
                 _appState.UIOperation.IsFinished = true;
             }

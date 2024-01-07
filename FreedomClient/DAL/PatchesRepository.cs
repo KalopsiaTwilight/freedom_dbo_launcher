@@ -35,6 +35,7 @@ namespace FreedomClient.DAL
                     patch.IsInstalled = true;
                 }
             }
+            _appState.AvailablePatches = result;
             return result;
         }
     }

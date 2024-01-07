@@ -28,6 +28,10 @@ namespace FreedomClient.Models
             LauncherImages = new List<string>();
             InstallPath = string.Empty;
             UIOperation = UIOperation.NoOp;
+            InstalledAddons = new();
+            InstalledPatches = new();
+            AvailableAddons = new();
+            AvailablePatches = new();
         }
         public string InstallPath { get; set; }
 
@@ -39,6 +43,11 @@ namespace FreedomClient.Models
 
         public List<Addon> InstalledAddons { get; set; }
         public List<Patch> InstalledPatches { get; set; }
+
+        [JsonIgnore]
+        public List<Addon> AvailableAddons { get; set; }
+        [JsonIgnore]
+        public List<Patch> AvailablePatches { get; set; }
 
         [JsonIgnore]
         public ApplicationLoadState LoadState { get;set; }

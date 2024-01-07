@@ -37,6 +37,7 @@ namespace FreedomClient.DAL
                     addon.IsInstalled = true;
                 }
             }
+            _appState.AvailableAddons = result;
             return result;
         }
     }
