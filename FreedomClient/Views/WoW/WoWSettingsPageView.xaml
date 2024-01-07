@@ -1,0 +1,61 @@
+﻿<Page x:Class="FreedomClient.Views.WoW.WoWSettingsPageView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:FreedomClient.Views.WoW"
+      xmlns:vm="clr-namespace:FreedomClient.ViewModels.WoW"
+      mc:Ignorable="d" 
+      d:DesignHeight="295" d:DesignWidth="828"
+      d:Background="White"
+      d:DataContext="{d:DesignInstance Type={x:Type vm:WoWSettingsPageViewModel}, IsDesignTimeCreatable=False}"
+      Title="WoWAddonsPage">
+    <Grid Margin="0,0,17,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="32" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="32"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Style="{DynamicResource SettingsTextStyle}" Grid.Row="0" Grid.Column="0" Text="{StaticResource txt_WoW_Settings_InstallDir}" />
+        <TextBox Style="{DynamicResource MainTextBoxStyle}" Grid.Row="0" Grid.Column="1" IsEnabled="False" Text="{Binding InstallPath}"></TextBox>
+        <Button Style="{DynamicResource IconButtonStyle}" 
+                Grid.Row="0" Grid.Column="2" 
+                ToolTip="{StaticResource txt_WoW_Settings_TT_InstallDir}" 
+                Command="{Binding ChangeInstallPathCommand}" >
+            <Image Height="20" Width="20" Source="{StaticResource ellipsis_solidDrawingImage}"/>
+        </Button>
+
+        <TextBlock Style="{DynamicResource SettingsTextStyle}" Grid.Row="2" Grid.Column="0" Text="{StaticResource txt_WoW_Settings_LogDir}"></TextBlock>
+        <TextBox Style="{DynamicResource MainTextBoxStyle}" 
+                 Grid.Row="2" Grid.Column="1" 
+                 IsEnabled="False"
+                 Text="{Binding LogPath}"/>
+        <Button Style="{DynamicResource IconButtonStyle}" 
+                Grid.Row="2" Grid.Column="2" 
+                ToolTip="{StaticResource txt_WoW_Settings_TT_LogDir}" 
+                Command="{Binding CopyLogDirCommand}">
+            <Image Height="20" Width="20" Source="{StaticResource copy_regularDrawingImage}"/>
+        </Button>
+
+        <Button Style="{DynamicResource BigButton}" 
+                Grid.Row="5" Grid.ColumnSpan="4" 
+                Content="{StaticResource txt_WoW_Settings_SoftResetInstall}"
+                Command="{Binding SoftResetInstallCommand}"
+                Margin="0,0,210,0"
+            />
+        <Button Style="{DynamicResource BigButton}" 
+                Grid.Row="5" Grid.ColumnSpan="4" 
+                Content="{StaticResource txt_WoW_Settings_HardResetInstall}"
+                Command="{Binding HardResetInstallCommand}"
+                Margin="210,0,0,0"
+            />
+    </Grid>
+</Page>

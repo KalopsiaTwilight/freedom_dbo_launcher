@@ -17,7 +17,7 @@ const long ArchiveSize = 100 * 1024 * 1024;
 // Load arguments
 if (args.Length < 3)
 {
-    Console.WriteLine("This program requires at least 3 arguments: {filedirectory} {googleCredentialsPath} {driveFolderId} {optional:downloadSourceConfig} {optional:cleanupArchiveFile}");
+    Console.WriteLine("This program requires at least 3 arguments: {filedirectory} {googleCredentialsPath} {driveFolderId} {optional:downloadSourceConfig} {optional:cleanupArchiveFile} {optional:archiveNamingFormat}");
     Environment.Exit(1);
 }
 
@@ -27,23 +27,32 @@ jsonSettings.Converters.Add(new DownloadSourceJsonConverter());
 jsonSettings.Formatting = Formatting.Indented;
 DownloadSourceConfiguration? downloadSourceConfig = null;
 string? cleanupArchivesPath = null;
+string archiveNamingFormat = "archive";
 if (args.Length >= 4)
 {
-    Console.WriteLine($"Parsing {nameof(DownloadSourceConfiguration)} in {args[3]}...");
-    try
+    if (File.Exists(args[3]))
     {
-        downloadSourceConfig = JsonConvert.DeserializeObject<DownloadSourceConfiguration>(File.ReadAllText(args[3]), jsonSettings);
-    }
-    catch
-    {
-        Console.Write($"Unable to parse {args[3]} as a {nameof(DownloadSourceConfiguration)}");
-        Environment.Exit(1);
+        Console.WriteLine($"Parsing {nameof(DownloadSourceConfiguration)} in {args[3]}...");
+        try
+        {
+            downloadSourceConfig = JsonConvert.DeserializeObject<DownloadSourceConfiguration>(File.ReadAllText(args[3]), jsonSettings);
+        }
+        catch
+        {
+            Console.Write($"Unable to parse {args[3]} as a {nameof(DownloadSourceConfiguration)}");
+            Environment.Exit(1);
+        }
     }
 }
 if (args.Length >= 5)
 {
     cleanupArchivesPath = args[4];
 }
+if (args.Length >= 6)
+{
+    archiveNamingFormat = args[5];
+}
+
 downloadSourceConfig ??= new DownloadSourceConfiguration();
 
 // Prepare google drive client
@@ -131,14 +140,14 @@ foreach (var keyPair in filesToArchive)
     currentArchive.Add(keyPair.Key, keyPair.Value);
     if (currentArchive.Sum(x => x.Value.Length) > ArchiveSize)
     {
-        var archivePath = Path.Combine(Path.GetTempPath(), $"archive{totalArchives}.zip");
+        var archivePath = Path.Combine(Path.GetTempPath(), $"{archiveNamingFormat}{totalArchives}.zip");
         Console.WriteLine($"Creating archive {totalArchives}...");
         CreateArchive(currentArchive, archivePath);
         currentArchive.Clear();
         totalArchives++;
     }
 }
-var finalArchivePath = Path.Combine(Path.GetTempPath(), $"archive{totalArchives}.zip");
+var finalArchivePath = Path.Combine(Path.GetTempPath(), $"{archiveNamingFormat}{totalArchives}.zip");
 CreateArchive(currentArchive, finalArchivePath);
 
 //Add new datasources to config
@@ -160,8 +169,6 @@ File.WriteAllText(outputPath, json);
 
 Console.WriteLine($"Uploaded {downloadSources.Keys.Count} files!");
 Console.WriteLine($"{nameof(DownloadSourceConfiguration)} written to {outputPath}.");
-Console.WriteLine($"Press any key to exit...");
-Console.ReadKey();
 
 void CreateArchive(Dictionary<string, FileInfo> filesToArchive, string archivePath)
 {

@@ -1,0 +1,19 @@
+﻿<Page x:Class="FreedomClient.Views.WoW.WoWAddonsPageView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:FreedomClient.Views.WoW"
+      xmlns:vm="clr-namespace:FreedomClient.ViewModels.WoW"
+      mc:Ignorable="d" 
+      d:DesignHeight="295" d:DesignWidth="828"
+      d:DataContext="{d:DesignInstance Type=vm:WoWAddonsPageViewModel, IsDesignTimeCreatable=False}"
+      Title="WoWAddonsPage">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <local:AddonsView DataContext="{Binding AddonsViewModel}"/>
+    </Grid>
+</Page>

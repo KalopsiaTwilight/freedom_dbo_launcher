@@ -4,13 +4,21 @@ using System.Windows;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
-using FreedomClient.Infrastructure;
+using FreedomClient.Models;
 using FreedomClient.Core;
 using Newtonsoft.Json;
 using Serilog;
 
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using System.Reflection;
+using System.Linq;
+using System.Windows.Controls;
+using FreedomClient.DAL;
+using System.Collections.Generic;
+using FreedomClient.ViewModels;
 using System.Net.Http.Headers;
+using FreedomClient.Views;
+using FreedomClient.Migrations;
 
 namespace FreedomClient
 {
@@ -23,7 +31,7 @@ namespace FreedomClient
         public ApplicationState? ApplicationState { get; private set; }
         public ILogger? Logger { get; private set; }
         protected override void OnStartup(StartupEventArgs e)
-        {
+       {
             LoadApplicationState();
             var services = new ServiceCollection();
             ConfigureServices(services);
@@ -45,6 +53,24 @@ namespace FreedomClient
             services.AddSingleton(ApplicationState!);
             services.AddSingleton(typeof(MainWindow));
 
+            var singletonTypes = new List<Type>();
+
+            singletonTypes.AddRange(Assembly.GetExecutingAssembly().GetTypes()
+                .Where(x => x.IsSubclassOf(typeof(Page))));
+            singletonTypes.AddRange(Assembly.GetExecutingAssembly().GetTypes()
+                .Where(x => x.GetInterfaces().Contains(typeof(IViewModel))));
+            foreach (var type in singletonTypes)
+            {
+                services.AddSingleton(type);
+            }
+
+            var repositories = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(x => x.GetInterfaces().Contains(typeof(IRepository)));
+            foreach(var repository in repositories)
+            {
+                services.AddTransient(repository);
+            }
+
             var localDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             var appDataPath = Path.Join(localDataPath, Constants.AppIdentifier);
             if (!Directory.Exists(appDataPath))
@@ -62,6 +88,8 @@ namespace FreedomClient
                     fileSizeLimitBytes: 1000 * 1024, rollOnFileSizeLimit: true, retainedFileCountLimit: 3)
                 .CreateLogger())
             );
+
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<App>());
 
             services.AddTransient<VerifiedFileClient>();
             services.AddHttpClient(Microsoft.Extensions.Options.Options.DefaultName, (opt) =>
@@ -111,16 +139,18 @@ namespace FreedomClient
                     }
                     catch { }
                     ApplicationState ??= new ApplicationState();
+                    
+                    
+                    if (ApplicationState.Version != new ApplicationState().Version)
+                    {
+                        AppStateMigrator.Migrate(ApplicationState);
+                        ApplicationState.Version = new ApplicationState().Version;
+                    }
 
-
-                    // TODO: Possible place to perform version upgrades
-
-
-                    ApplicationState.Version = new ApplicationState().Version;
                     // Check if install path still exists
                     if (!Directory.Exists(ApplicationState.InstallPath))
                     {
-                        ApplicationState.InstallPath = null;
+                        ApplicationState.InstallPath = string.Empty;
                     }
                     ApplicationState.LoadState = string.IsNullOrEmpty(ApplicationState.InstallPath) ? ApplicationLoadState.NotInstalled : ApplicationLoadState.CheckForUpdate;
                 }

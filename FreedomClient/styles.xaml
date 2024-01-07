@@ -3,6 +3,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:FreedomClient.Controls"
  >
+    <FontFamily x:Key="Morpheus" >./assets/fonts/#Morpheus</FontFamily>
+    <FontFamily x:Key="Fritz Quadrata">./assets/fonts/#Friz Quadrata Std</FontFamily>
+    
     <ImageBrush x:Key="ButtonNormal" ImageSource="assets/images/btn_normal.png"></ImageBrush>
     <ImageBrush x:Key="ButtonDisabled" ImageSource="assets/images/btn_disabled.png"></ImageBrush>
     <ImageBrush x:Key="ButtonHighLight" ImageSource="assets/images/btn_highlight.png"></ImageBrush>
@@ -11,10 +14,11 @@
         <Setter Property="TextWrapping" Value="NoWrap"/>
         <Setter Property="TextTrimming" Value="None"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="FontSize" Value="16"/>
-        <Setter Property="FontFamily" Value="./assets/fonts/#Friz Quadrata Std"/>
+        <Setter Property="FontFamily" Value="{StaticResource Fritz Quadrata}"/>
     </Style>
+    
     <SolidColorBrush x:Key="TextBox.MouseOver.Border" Color="#AF7EB4EA"/>
     <SolidColorBrush x:Key="TextBox.Focus.Border" Color="#AF569DE5"/>
     <Style x:Key="MainTextBoxStyle" TargetType="{x:Type TextBox}">
@@ -62,6 +66,7 @@
             </MultiTrigger>
         </Style.Triggers>
     </Style>
+    
     <Style x:Key="BigButton" TargetType="Button">
         <Setter Property="Width" Value="200"/>
         <Setter Property="Height" Value="55"/>
@@ -70,7 +75,7 @@
         <Setter Property="FontSize" Value="24"/>
         <Setter Property="TextBlock.LineHeight" Value="36"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontFamily" Value="./assets/fonts/#Morpheus"/>
+        <Setter Property="FontFamily" Value="{StaticResource Morpheus}"/>
         <Setter Property="TextBlock.Effect">
             <Setter.Value>
                 <DropShadowEffect/>
@@ -162,10 +167,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
-    <Geometry x:Key="minus_solidGeometry">F1 M448,512z M0,0z M432,256C432,273.7,417.7,288,400,288L48,288C30.3,288 16,273.7 16,256 16,238.3 30.3,224 48,224L400,224C417.7,224,432,238.3,432,256z</Geometry>
 
-    
     <Style x:Key="IconButtonStyle" TargetType="Button">
         <Setter Property="Width" Value="32"/>
         <Setter Property="Height" Value="32"/>
@@ -201,6 +203,123 @@
                             <Setter Property="Background" Value="#40FF0000"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PageButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Border CornerRadius="2" BorderBrush="#1A1A1A" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#40000000"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="#A07C1500"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="DefaultScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                    <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
+                        <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanHorizontallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" CanVerticallyScroll="False" Grid.Column="0" Content="{TemplateBinding Content}" CanContentScroll="{TemplateBinding CanContentScroll}" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
+                        <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" 
+                                       Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" 
+                                       Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                       ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                       Style="{DynamicResource DefaultScrollBarStyle}"
+                                       />
+                        <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="DefaultScrollBarThumb" TargetType="{x:Type Thumb}">
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border x:Name="rectangleBorder" BorderBrush="#AA1A1A1A" Background="#AA1A1A1A" CornerRadius="8" BorderThickness="2" 
+                                SnapsToDevicePixels="True">
+                        <Rectangle x:Name="rectangle" Fill="Transparent"  SnapsToDevicePixels="True" 
+                                       Height="{TemplateBinding Height}" Width="{TemplateBinding Width}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="DefaultScrollBarStyle" TargetType="{x:Type ScrollBar}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollBar}">
+                    <Grid x:Name="Bg" SnapsToDevicePixels="true">
+                        <Grid.RowDefinitions>
+                            <RowDefinition MaxHeight="0"/>
+                            <RowDefinition Height="0.00001*"/>
+                        </Grid.RowDefinitions>
+                        <RepeatButton x:Name="PART_LineUpButton" Command="{x:Static ScrollBar.LineUpCommand}" 
+                                          IsEnabled="{TemplateBinding IsMouseOver}" Opacity="0">
+                        </RepeatButton>
+                        <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsMouseOver}" Grid.Row="1">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Opacity="0"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Opacity="0"/>
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource DefaultScrollBarThumb}"/>
+                            </Track.Thumb>
+                        </Track>
+                        <RepeatButton x:Name="PART_LineDownButton" Command="{x:Static ScrollBar.LineDownCommand}" 
+                                          IsEnabled="{TemplateBinding IsMouseOver}" Opacity="0"></RepeatButton>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type local:HamburgerMenu}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:HamburgerMenu}">
+                    <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentControl Content="{TemplateBinding Content}" />
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

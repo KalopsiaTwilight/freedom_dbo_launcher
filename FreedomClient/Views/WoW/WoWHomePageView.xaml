@@ -1,0 +1,66 @@
+﻿<Page x:Class="FreedomClient.Views.WoW.WoWHomePageView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:FreedomClient.Views.WoW"
+      xmlns:cntrls="clr-namespace:FreedomClient.Controls"
+      xmlns:vm="clr-namespace:FreedomClient.ViewModels.WoW"
+      xmlns:cnvt="clr-namespace:ValueConverters;assembly=ValueConverters"
+      mc:Ignorable="d" 
+      d:DesignHeight="295" d:DesignWidth="828"
+      d:Background="White"
+      d:DataContext="{d:DesignInstance Type=vm:WoWHomePageViewModel, IsDesignTimeCreatable=False}"
+      Title="WoWHomePage">
+    <Page.Resources>
+        <cnvt:EnumToObjectConverter x:Key="ServerStatusToColorConverter">
+            <cnvt:EnumToObjectConverter.Items>
+                <ResourceDictionary>
+                    <Color x:Key="Up">#4CB044</Color>
+                    <Color x:Key="Down">#89023E</Color>
+                    <Color x:Key="StartingUp">#F5A65B</Color>
+                    <Color x:Key="Unknown">#333333</Color>
+                </ResourceDictionary>
+            </cnvt:EnumToObjectConverter.Items>
+        </cnvt:EnumToObjectConverter>
+    </Page.Resources>
+    <Border CornerRadius="2" BorderBrush="#1A1D1A" BorderThickness="1" Margin="0,0,17,0" >
+        <Grid Background="#1A1D1A">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="210"/>
+            </Grid.ColumnDefinitions>
+            <cntrls:CyclingBackgroundImage x:Name="bgImage" Grid.ColumnSpan="2" ImagePaths="{Binding LauncherImages}" />
+
+            <Button Style="{StaticResource BigButton}"
+                    Grid.Column="1" Margin="0,10,10,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Command="{Binding GoToForumsCommand}"
+                    Content="{StaticResource txt_WoW_Home_Forums}"
+            />
+            <Grid Grid.Column="1" HorizontalAlignment="Center" Margin="0,0,0,0">
+                <TextBlock 
+                Margin="0,0,25,8" VerticalAlignment="Bottom" 
+                Foreground="White" FontSize="16" FontFamily="{StaticResource Fritz Quadrata}" 
+                    Text="{StaticResource txt_WoW_Home_ServerStatus}"
+                />
+                <Ellipse Margin="0,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="16" Height="16">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush>
+                            <RadialGradientBrush.Transform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform/>
+                                    <TranslateTransform X="6" Y="-4"/>
+                                </TransformGroup>
+                            </RadialGradientBrush.Transform>
+                            <GradientStop Color="{Binding ServerStatus, Converter={StaticResource ServerStatusToColorConverter}}" Offset="1"/>
+                            <!--<GradientStop Color="{StaticResource TestColor}" Offset="1"/>-->
+                            <GradientStop Color="#FFF" Offset="0"/>
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+            </Grid>
+        </Grid>
+    </Border>
+</Page>
