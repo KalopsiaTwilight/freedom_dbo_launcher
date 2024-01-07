@@ -29,11 +29,11 @@ namespace FreedomClient.ViewModels.WoW
             {
                 IsLoading = true,
                 InstallCommand = new RelayCommand(
-                    (obj) => (obj as Addon)?.IsInstalled == false,
+                    (obj) => true,
                     (obj) => mediator.Send(new InstallWoWAddonCommand(obj as Addon))
                 ),
                 RemoveCommand = new RelayCommand(
-                    (obj) => (obj as Addon)?.IsInstalled == true,
+                    (obj) => true,
                     (obj) => mediator.Send(new RemoveWoWAddonCommand(obj as Addon))
                 ),
             };
