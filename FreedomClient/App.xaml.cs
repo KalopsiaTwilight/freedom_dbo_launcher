@@ -136,7 +136,8 @@ namespace FreedomClient
                     try
                     {
                         ApplicationState = JsonConvert.DeserializeObject<ApplicationState>(txt, settings);
-                    } catch { }
+                    }
+                    catch { }
                     ApplicationState ??= new ApplicationState();
                     
                     
@@ -164,7 +165,7 @@ namespace FreedomClient
         private void SaveApplicationState()
         {
             var settings = new JsonSerializerSettings();
-            settings.Formatting= Formatting.Indented;
+            settings.Formatting = Formatting.Indented;
             settings.Converters.Add(new DownloadSourceJsonConverter());
             var json = JsonConvert.SerializeObject(ApplicationState, settings);
             var appStatePath = GetApplicationStatePath();
