@@ -19,9 +19,21 @@ namespace FreedomClient.ViewModels.WoW
         public bool IsInstalled { get; set; }
         public ApplicationState ApplicationState { get; set; }
 
-        [AlsoNotifyFor("CurrentFrameType")]
+        [AlsoNotifyFor("CurrentFrameType", "CurrentFrameTitle")]
         public object CurrentFrame { get; set; }
         public Type CurrentFrameType {  get => CurrentFrame.GetType(); }
+        public string CurrentFrameTitle { get
+            {
+                switch (CurrentFrameType.Name)
+                {
+                    case nameof(WoWHomePageView): return "Home";
+                    case nameof(WoWAddonsPageView): return "Addons";
+                    case nameof(WoWPatchesPageView): return "Patches";
+                    case nameof(WoWSettingsPageView): return "Settings";
+                    default: return "Unknown";
+                }
+            }
+        }
 
         private readonly IServiceProvider _serviceProvider;
 
