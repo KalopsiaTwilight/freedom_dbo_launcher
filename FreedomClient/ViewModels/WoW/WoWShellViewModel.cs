@@ -29,7 +29,6 @@ namespace FreedomClient.ViewModels.WoW
             CurrentFrame = serviceProvider.GetRequiredService<WoWHomePageView>();
             ApplicationState = serviceProvider.GetRequiredService<ApplicationState>();
             IsInstalled = !string.IsNullOrEmpty(ApplicationState.InstallPath);
-
             _serviceProvider = serviceProvider;
 
             var mediator = serviceProvider.GetRequiredService<IMediator>();

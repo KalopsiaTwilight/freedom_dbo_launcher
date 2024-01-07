@@ -27,8 +27,8 @@
     <Border CornerRadius="2" BorderBrush="#1A1D1A" BorderThickness="1" Margin="0,0,17,0" >
         <Grid Background="#1A1D1A">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="552"/>
-                <ColumnDefinition Width="276"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="210"/>
             </Grid.ColumnDefinitions>
             <cntrls:CyclingBackgroundImage x:Name="bgImage" Grid.ColumnSpan="2" ImagePaths="{Binding LauncherImages}" />
 
@@ -37,13 +37,13 @@
                     Command="{Binding GoToForumsCommand}"
                     Content="{StaticResource txt_WoW_Home_Forums}"
             />
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" HorizontalAlignment="Center" Margin="0,0,0,0">
                 <TextBlock 
-                Margin="0,0,65,8" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                Margin="0,0,25,8" VerticalAlignment="Bottom" 
                 Foreground="White" FontSize="16" FontFamily="{StaticResource Fritz Quadrata}" 
                     Text="{StaticResource txt_WoW_Home_ServerStatus}"
                 />
-                <Ellipse Margin="0,0,45,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="16" Height="16">
+                <Ellipse Margin="0,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="16" Height="16">
                     <Ellipse.Fill>
                         <RadialGradientBrush>
                             <RadialGradientBrush.Transform>

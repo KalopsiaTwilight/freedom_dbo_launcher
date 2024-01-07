@@ -4,14 +4,15 @@
                     >
     <clr:String x:Key="txt_MainWindow_TT_Minimize">Minimize the launcher</clr:String>
     <clr:String x:Key="txt_MainWindow_TT_Close">Close the laucher</clr:String>
+    <clr:String x:Key="txt_MainWindow_TT_OpenMenu">Open navigation menu</clr:String>
+    <clr:String x:Key="txt_MainWindow_NavBar_PageHome">Home</clr:String>
+    <clr:String x:Key="txt_MainWindow_NavBar_PagePatches">Patches</clr:String>
+    <clr:String x:Key="txt_MainWindow_NavBar_PageAddons">Addons</clr:String>
+    <clr:String x:Key="txt_MainWindow_NavBar_PageSettings">Settings</clr:String>
    
     <clr:String x:Key="txt_General_Loading">Loading...</clr:String>
 
     <clr:String x:Key="txt_WoW_Shell_Title">FREEDOM WOW</clr:String>
-    <clr:String x:Key="txt_WoW_Shell_PageHomeBtn">Home</clr:String>
-    <clr:String x:Key="txt_WoW_Shell_PagePatchesBtn">Patches</clr:String>
-    <clr:String x:Key="txt_WoW_Shell_PageAddonsBtn">Addons</clr:String>
-    <clr:String x:Key="txt_WoW_Shell_PageSettingsBtn">Settings</clr:String>
     <clr:String x:Key="txt_WoW_Shell_LaunchBtn">Launch</clr:String>
     <clr:String x:Key="txt_WoW_Shell_InstallBtn">Install</clr:String>
     <clr:String x:Key="txt_WoW_Shell_TT_CancelOperationBtn">Cancel Operation</clr:String>

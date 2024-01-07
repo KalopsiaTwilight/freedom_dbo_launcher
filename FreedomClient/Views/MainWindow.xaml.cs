@@ -31,5 +31,10 @@ namespace FreedomClient.Views
                 DragMove();
             }
         }
+
+        private void HamburgerMenu_OnClickOutsideOfMenu(object sender, MouseEventArgs e)
+        {
+            (DataContext as MainWindowViewModel)!.IsNavMenuOpen = false;
+        }
     }
 }

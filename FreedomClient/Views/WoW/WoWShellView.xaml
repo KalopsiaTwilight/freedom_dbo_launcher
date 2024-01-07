@@ -4,12 +4,13 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:FreedomClient.Views.WoW"
+      xmlns:ccntrl="clr-namespace:FreedomClient.Controls"
       xmlns:clr="clr-namespace:System;assembly=mscorlib"
       xmlns:vm="clr-namespace:FreedomClient.ViewModels.WoW"
       xmlns:cnvt="clr-namespace:ValueConverters;assembly=ValueConverters"
       xmlns:lcnvt="clr-namespace:FreedomClient.Converters"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="1000"
+      d:DesignHeight="450" d:DesignWidth="858"
       d:DataContext="{d:DesignInstance Type={x:Type vm:WoWShellViewModel}, IsDesignTimeCreatable=False}"
       Title="WoWMainPage">
     <Page.Resources>
@@ -36,17 +37,13 @@
             <RowDefinition Height="295"></RowDefinition>
             <RowDefinition Height="62"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="135"></ColumnDefinition>
-            <ColumnDefinition Width="865"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
 
         <!-- Background -->
-        <Image Grid.ColumnSpan="2" Grid.RowSpan="5" Source="{StaticResource FilterImage}" Stretch="UniformToFill" Opacity="0.31"></Image>
-        <Image Grid.ColumnSpan="2" Grid.RowSpan="5" Source="{StaticResource MainBackground}" Stretch="UniformToFill" Opacity="0.40"></Image>
+        <Image Grid.RowSpan="5" Source="{StaticResource FilterImage}" Stretch="UniformToFill" Opacity="0.31"></Image>
+        <Image Grid.RowSpan="5" Source="{StaticResource MainBackground}" Stretch="UniformToFill" Opacity="0.40"></Image>
 
         <!-- Title -->
-        <Grid Grid.ColumnSpan="2" Grid.RowSpan="2">
+        <Grid Grid.RowSpan="2">
             <TextBlock 
                 HorizontalAlignment="Center" VerticalAlignment="Center" 
                 FontSize="56" FontFamily="{StaticResource Morpheus}" 
@@ -63,51 +60,10 @@
             </TextBlock>
         </Grid>
 
-        <!-- Side menu -->
-        <Grid Grid.Column="0" Grid.Row="2" Margin="27,10,0,10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*"></RowDefinition>
-                <RowDefinition Height="1*"></RowDefinition>
-                <RowDefinition Height="1*"></RowDefinition>
-                <RowDefinition Height="1*"></RowDefinition>
-            </Grid.RowDefinitions>
-            <Button Grid.Row="0" Style="{StaticResource PageButtonStyle}" Margin="0,0,0,5" 
-                    IsEnabled="{Binding CurrentFrameType, Converter={StaticResource HomeBtnEnabledConverter}}" 
-                    Command="{Binding NavigateFrameCommand}" CommandParameter="{x:Type local:WoWHomePageView}">
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
-                           FontSize="24" FontFamily="{StaticResource Morpheus}" 
-                           Text="{StaticResource txt_WoW_Shell_PageHomeBtn}"
-                />
-            </Button>
-            <Button Grid.Row="1"  Style="{StaticResource PageButtonStyle}" Margin="0,0,0,5" 
-                    IsEnabled="{Binding CurrentFrameType, Converter={StaticResource PatchesBtnEnabledConverter}}" 
-                    Command="{Binding NavigateFrameCommand}" CommandParameter="{x:Type local:WoWPatchesPageView}">
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
-                           FontSize="24" FontFamily="{StaticResource Morpheus}" 
-                           Text="{StaticResource txt_WoW_Shell_PagePatchesBtn}"
-                />
-            </Button>
-            <Button Grid.Row="2"  Style="{StaticResource PageButtonStyle}" Margin="0,0,0,5"
-                    IsEnabled="{Binding CurrentFrameType, Converter={StaticResource AddonsBtnEnabledConverter}}" 
-                    Command="{Binding NavigateFrameCommand}" CommandParameter="{x:Type local:WoWAddonsPageView}">
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
-                           FontSize="24" FontFamily="{StaticResource Morpheus}" 
-                           Text="{StaticResource txt_WoW_Shell_PageAddonsBtn}"
-                />
-            </Button>
-            <Button Grid.Row="3"  Style="{StaticResource PageButtonStyle}" Margin="0,0,0,0" 
-                    IsEnabled="{Binding CurrentFrameType, Converter={StaticResource SettingsBtnEnabledConverter}}" 
-                    Command="{Binding NavigateFrameCommand}" CommandParameter="{x:Type local:WoWSettingsPageView}">
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
-                           FontSize="24" FontFamily="{StaticResource Morpheus}" 
-                           Text="{StaticResource txt_WoW_Shell_PageSettingsBtn}"
-                />
-            </Button>
-        </Grid>
 
-        <Frame Grid.Column="1" Grid.Row="2" NavigationUIVisibility="Hidden" Content="{Binding CurrentFrame}" Margin="10,10,10,10"/>
+        <Frame Grid.Row="2" NavigationUIVisibility="Hidden" Content="{Binding CurrentFrame}" Margin="10,10,10,10"/>
 
-        <Grid Grid.Column="2" Grid.Row="3" Margin="0,0,17,0">
+        <Grid Grid.Row="3" Margin="0,0,17,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="240"/>

@@ -1,5 +1,6 @@
 ﻿using FreedomClient.Core;
 using FreedomClient.Models;
+using FreedomClient.ViewModels.WoW;
 using FreedomClient.Views;
 using FreedomClient.Views.WoW;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,8 +28,12 @@ namespace FreedomClient.ViewModels
 
         public ICommand? MinimizeCommand { get; set; }
         public ICommand? CloseCommand { get; set; }
+        public ICommand? OpenNavMenuCommand { get; set; }
+        public ICommand? NavigateSubFrameCommand { get; set; }
+
         public object CurrentFrame { get; set; }
         public MainWindow? MainWindow { get; set; }
+        public bool IsNavMenuOpen { get; set; }
 
         public MainWindowViewModel(IServiceProvider serviceProvider)
         {
@@ -36,8 +41,20 @@ namespace FreedomClient.ViewModels
             _httpClient = serviceProvider.GetRequiredService<HttpClient>();
             _appState = serviceProvider.GetRequiredService<ApplicationState>();
 
+            IsNavMenuOpen = false;
+
             MinimizeCommand = new RelayCommand((_) => true, (_) => { if (MainWindow != null) { MainWindow.WindowState = WindowState.Minimized; } });
+            OpenNavMenuCommand = new RelayCommand((_) => !IsNavMenuOpen, (_) => IsNavMenuOpen =  true);
             CloseCommand = new RelayCommand((_) => true, (_) => { MainWindow?.Close(); });
+
+            NavigateSubFrameCommand = new RelayCommand((_) => true, (x) =>
+            {
+                if (CurrentFrame is WoWShellView wowShell)
+                {
+                    (wowShell.DataContext as WoWShellViewModel)?.NavigateFrameCommand?.Execute(x);
+                }
+                IsNavMenuOpen = false;
+            });
 
             CurrentFrame = serviceProvider.GetRequiredService<WoWShellView>();
 

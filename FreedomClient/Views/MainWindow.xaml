@@ -3,12 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FreedomClient.Views"
+        xmlns:wowViews="clr-namespace:FreedomClient.Views.WoW"
+        xmlns:ccntrl="clr-namespace:FreedomClient.Controls"
         xmlns:vm="clr-namespace:FreedomClient.ViewModels"
         mc:Ignorable="d"
         d:Background="White"
         d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel, IsDesignTimeCreatable=False}"
-        Title="Freedom WoW" Height="450" Width="1000" Background="#1A1D1A" 
+        Title="Freedom WoW" Height="450" Width="850" Background="#1A1D1A" 
         WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
         BorderBrush="#BF000000" BorderThickness="1">
     <Grid MouseDown="MenuGrid_MouseDown">
@@ -16,13 +17,60 @@
             <RowDefinition Height="32"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Frame Grid.RowSpan="2" Name="MainContentFrame" NavigationUIVisibility="Hidden" Content="{Binding CurrentFrame}"></Frame>
-        
+
+        <Frame Grid.RowSpan="2" Name="MainContentFrame" NavigationUIVisibility="Hidden" Content="{Binding CurrentFrame}" ></Frame>
+
+        <ccntrl:HamburgerMenu
+            FallbackOpenWidth="250"
+            BorderBrush="#1A1D1A"
+            BorderThickness="1 1 0 0"
+            IsOpen="{Binding IsNavMenuOpen}"
+            OpenCloseDuration="0:0:0.25"
+            Grid.Row="1"
+            HorizontalAlignment="Right"
+            OnClickOutsideOfMenu="HamburgerMenu_OnClickOutsideOfMenu"
+        >
+            <ccntrl:HamburgerMenu.Background>
+                <SolidColorBrush Color="#1A1D1A" Opacity="0.9"></SolidColorBrush>
+            </ccntrl:HamburgerMenu.Background>
+            <StackPanel>
+                <ccntrl:HamburgerMenuItem 
+                    Command="{Binding NavigateSubFrameCommand}" 
+                    CommandParameter="{x:Type wowViews:WoWHomePageView}"
+                >
+                    <TextBlock Style="{DynamicResource SettingsTextStyle}" Text="{StaticResource txt_MainWindow_NavBar_PageHome}"></TextBlock>
+                </ccntrl:HamburgerMenuItem>
+                <ccntrl:HamburgerMenuItem 
+                    Command="{Binding NavigateSubFrameCommand}" 
+                    CommandParameter="{x:Type wowViews:WoWPatchesPageView}"
+                >
+                    <TextBlock Style="{DynamicResource SettingsTextStyle}" Text="{StaticResource txt_MainWindow_NavBar_PagePatches}"></TextBlock>
+                </ccntrl:HamburgerMenuItem>
+                <ccntrl:HamburgerMenuItem 
+                    Command="{Binding NavigateSubFrameCommand}" 
+                    CommandParameter="{x:Type wowViews:WoWAddonsPageView}"
+                >
+                    <TextBlock Style="{DynamicResource SettingsTextStyle}" Text="{StaticResource txt_MainWindow_NavBar_PageAddons}"></TextBlock>
+                </ccntrl:HamburgerMenuItem>
+                <ccntrl:HamburgerMenuItem 
+                    Command="{Binding NavigateSubFrameCommand}" 
+                    CommandParameter="{x:Type wowViews:WoWSettingsPageView}"
+                >
+                    <TextBlock Style="{DynamicResource SettingsTextStyle}" Text="{StaticResource txt_MainWindow_NavBar_PageSettings}"></TextBlock>
+                </ccntrl:HamburgerMenuItem>
+            </StackPanel>
+        </ccntrl:HamburgerMenu>
+
         <Grid Grid.Row="0" Name="MenuGrid">
-            <Button Name="btnMinimize" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,32,0"
+            <Button Name="btnMinimize" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,64,0"
                     Command="{Binding MinimizeCommand}"
                     ToolTip="{StaticResource txt_MainWindow_TT_Minimize}">
                 <Image Height="20" Width="20" Source="{StaticResource minus_solidDrawingImage}"/>
+            </Button>
+            <Button Name="btnOpenNavMenu" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,32,0"
+                    Command="{Binding OpenNavMenuCommand}"
+                    ToolTip="{StaticResource txt_MainWindow_TT_OpenMenu}">
+                <Image Height="20" Width="20" Source="{StaticResource bars_solidDrawingImage}"/>
             </Button>
             <Button Name="btnClose" Style="{StaticResource CloseButtonStyle}" HorizontalAlignment="Right"  VerticalAlignment="center" Margin="0,0,0,0"
                     Command="{Binding CloseCommand}"
