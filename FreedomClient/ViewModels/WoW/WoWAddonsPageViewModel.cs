@@ -18,22 +18,24 @@ namespace FreedomClient.ViewModels.WoW
     public class WoWAddonsPageViewModel: IViewModel
     {
         private AddonsRepository _repository;
+        private ApplicationState _appState;
 
         public AddonsViewModel AddonsViewModel { get; set; }
 
-        public WoWAddonsPageViewModel(AddonsRepository repository, IMediator mediator)
+        public WoWAddonsPageViewModel(AddonsRepository repository, IMediator mediator, ApplicationState appState)
         {
             _repository = repository;
+            _appState = appState;
 
             AddonsViewModel = new AddonsViewModel
             {
                 IsLoading = true,
                 InstallCommand = new RelayCommand(
-                    (obj) => true,
+                    (_) => !_appState.UIOperation.IsBusy,
                     (obj) => mediator.Send(new InstallWoWAddonCommand(obj as Addon))
                 ),
                 RemoveCommand = new RelayCommand(
-                    (obj) => true,
+                    (_) => !_appState.UIOperation.IsBusy,
                     (obj) => mediator.Send(new RemoveWoWAddonCommand(obj as Addon))
                 ),
             };

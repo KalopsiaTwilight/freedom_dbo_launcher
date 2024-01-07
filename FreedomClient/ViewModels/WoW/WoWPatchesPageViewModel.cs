@@ -17,22 +17,24 @@ namespace FreedomClient.ViewModels.WoW
     public class WoWPatchesPageViewModel: IViewModel
     {
         private PatchesRepository _patchesRepository;
+        private ApplicationState _appState;
 
         public PatchesViewModel PatchesViewModel { get; set; }
 
-        public WoWPatchesPageViewModel(PatchesRepository repository, IMediator mediator)
+        public WoWPatchesPageViewModel(PatchesRepository repository, IMediator mediator, ApplicationState appState)
         {
             _patchesRepository = repository;
+            _appState = appState;
 
             PatchesViewModel = new PatchesViewModel
             {
                 IsLoading = true,
                 InstallCommand = new RelayCommand(
-                (obj) => true,
+                    (_) => !_appState.UIOperation.IsBusy,
                     (obj) => mediator.Send(new InstallWoWCustomPatchCommand(obj as Patch))
                 ),
                 RemoveCommand = new RelayCommand(
-                (obj) => true,
+                    (_) => !_appState.UIOperation.IsBusy,
                     (obj) => mediator.Send(new RemoveWoWCustomPatchCommand(obj as Patch))
                 ),
             };
