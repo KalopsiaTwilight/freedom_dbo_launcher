@@ -60,16 +60,16 @@
                     <DropShadowEffect/>
                 </TextBlock.Effect>
             </TextBlock>
-            <TextBlock 
-                Margin="0,0,27,0"  
-                Style="{StaticResource SettingsTextStyle}"
-                HorizontalAlignment="Right" 
-                VerticalAlignment="Bottom" 
-                FontSize="32" Foreground="#1A1A1A"
-                Text="{Binding CurrentFrameTitle}"
-             />
         </Grid>
 
+        <TextBlock 
+                Margin="10,0,0,10"  
+                Style="{StaticResource SettingsTextStyle}"
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Bottom" 
+                FontSize="16" Foreground="#1A1A1A"
+                Text="{Binding CurrentFrameTitle}"
+             />
 
         <Frame Grid.Row="2" NavigationUIVisibility="Hidden" Content="{Binding CurrentFrame}" Margin="10,10,10,10"/>
 

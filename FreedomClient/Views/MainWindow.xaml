@@ -21,13 +21,15 @@
         <Frame Grid.RowSpan="2" Name="MainContentFrame" NavigationUIVisibility="Hidden" Content="{Binding CurrentFrame}" ></Frame>
 
         <ccntrl:HamburgerMenu
-            FallbackOpenWidth="250"
+            FallbackOpenWidth="200"
+            FallbackOpenHeight="50"
             BorderBrush="#1A1D1A"
             BorderThickness="1 1 0 0"
             IsOpen="{Binding IsNavMenuOpen}"
             OpenCloseDuration="0:0:0.25"
             Grid.Row="1"
             HorizontalAlignment="Right"
+            VerticalAlignment="Top"
             OnClickOutsideOfMenu="HamburgerMenu_OnClickOutsideOfMenu"
         >
             <ccntrl:HamburgerMenu.Background>

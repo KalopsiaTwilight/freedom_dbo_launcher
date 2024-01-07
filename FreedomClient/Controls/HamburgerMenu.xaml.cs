@@ -52,6 +52,16 @@ namespace FreedomClient.Controls
             set { SetValue(FallbackOpenWidthProperty, value); }
         }
 
+        public static readonly DependencyProperty FallbackOpenHeightProperty =
+            DependencyProperty.Register("FallbackOpenHeight", typeof(double), typeof(HamburgerMenu),
+                new PropertyMetadata(100.0));
+
+        public double FallbackOpenHeight
+        {
+            get { return (double)GetValue(FallbackOpenHeightProperty); }
+            set { SetValue(FallbackOpenHeightProperty, value); }
+        }
+
         public event EventHandler<MouseEventArgs>? OnClickOutsideOfMenu;
 
         
@@ -65,6 +75,7 @@ namespace FreedomClient.Controls
             InitializeComponent();
             this.Loaded += OnComponentLoaded;
             Width = 0;
+            Height = 0;
         }
 
         private void OnComponentLoaded(object sender, RoutedEventArgs e)
@@ -111,9 +122,17 @@ namespace FreedomClient.Controls
             {
                 contentWidth = FallbackOpenWidth;
             }
+            Width = contentWidth;
 
-            DoubleAnimation openingAnimation = new DoubleAnimation(contentWidth, OpenCloseDuration);
-            BeginAnimation(WidthProperty, openingAnimation);
+            double contentHeight = GetDesiredContentHeight();
+            if (contentHeight <= FallbackOpenHeight)
+            {
+                contentHeight = FallbackOpenHeight;
+            }
+
+
+            DoubleAnimation openingAnimation = new DoubleAnimation(contentHeight, OpenCloseDuration);
+            BeginAnimation(HeightProperty, openingAnimation);
         }
 
         private double GetDesiredContentWidth()
@@ -128,10 +147,22 @@ namespace FreedomClient.Controls
             return elem.DesiredSize.Width;
         }
 
+        private double GetDesiredContentHeight()
+        {
+            if (Content is not FrameworkElement elem)
+            {
+                return FallbackOpenHeight;
+            }
+
+            elem.Measure(new Size(MaxWidth, MaxHeight));
+
+            return elem.DesiredSize.Height;
+        }
+
         private void CloseMenuAnimated()
         {
             DoubleAnimation closingAnimation = new DoubleAnimation(0, OpenCloseDuration);
-            BeginAnimation(WidthProperty, closingAnimation);
+            BeginAnimation(HeightProperty, closingAnimation);
         }
     }
 }
