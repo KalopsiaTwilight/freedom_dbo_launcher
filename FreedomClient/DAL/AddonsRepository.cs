@@ -32,7 +32,7 @@ namespace FreedomClient.DAL
             }
             foreach(var addon in result)
             {
-                if (_appState.InstalledAddons.ContainsKey(addon.Title))
+                if (_appState.InstalledAddons.Any(x => x.Title == addon.Title))
                 {
                     addon.IsInstalled = true;
                 }

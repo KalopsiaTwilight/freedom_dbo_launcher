@@ -21,7 +21,7 @@
     <clr:String x:Key="txt_WoW_Home_ServerStatus">Server Status:</clr:String>
     
     <clr:String x:Key="txt_WoW_Patches_Install">Install</clr:String>
-    <clr:String x:Key="txt_WoW_Patches_Installed">Installed</clr:String>
+    <clr:String x:Key="txt_WoW_Patches_Remove">Remove</clr:String>
     <clr:String x:Key="txt_WoW_Patches_Author">Author:</clr:String>
     <clr:String x:Key="txt_WoW_Patches_Version">Version:</clr:String>
     

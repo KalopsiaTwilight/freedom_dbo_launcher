@@ -143,6 +143,7 @@ namespace FreedomClient
                     if (ApplicationState.Version != new ApplicationState().Version)
                     {
                         AppStateMigrator.Migrate(ApplicationState);
+                        ApplicationState.Version = new ApplicationState().Version;
                     }
 
                     // Check if install path still exists

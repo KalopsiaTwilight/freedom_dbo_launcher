@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace FreedomClient.Models
@@ -24,7 +25,8 @@ namespace FreedomClient.Models
 
         [AlsoNotifyFor(nameof(DisplayAuthor))]
         public string Author { get; set; }
-        public string DisplayAuthor => Author.Length > 20 ? string.Concat(Author.AsSpan(0, 17), "...") : Author;
+        [JsonIgnore]
+        public string DisplayAuthor => Author.Length > 22 ? string.Concat(Author.AsSpan(0, 19), "...") : Author;
         public string Version { get; set; }
         public string ImageSrc { get; set; }
         public string Description { get; set; }

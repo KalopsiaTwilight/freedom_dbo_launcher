@@ -37,7 +37,8 @@ namespace FreedomClient.Models
 
         public List<string> LauncherImages { get; set; }
 
-        public Dictionary<string, string> InstalledAddons { get; set; }
+        public List<Addon> InstalledAddons { get; set; }
+        public List<Patch> InstalledPatches { get; set; }
 
         [JsonIgnore]
         public ApplicationLoadState LoadState { get;set; }

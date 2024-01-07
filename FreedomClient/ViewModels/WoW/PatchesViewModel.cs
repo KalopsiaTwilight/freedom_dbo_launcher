@@ -15,6 +15,8 @@ namespace FreedomClient.ViewModels.WoW
 
         [AlsoNotifyFor("PatchViews")]
         public ICommand? InstallCommand { get; set; }
+        [AlsoNotifyFor("PatchViews")]
+        public ICommand? RemoveCommand { get; set; }
 
         public bool IsLoading { get; set; }
         public IEnumerable<PatchViewModel> PatchViews
@@ -22,7 +24,8 @@ namespace FreedomClient.ViewModels.WoW
             get => Patches.Select(x => new PatchViewModel()
             {
                 Patch = x,
-                InstallCommand = InstallCommand
+                InstallCommand = InstallCommand,
+                RemoveCommand = RemoveCommand,
             });
         }
 

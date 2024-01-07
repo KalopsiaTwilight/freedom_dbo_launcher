@@ -11,6 +11,7 @@ namespace FreedomClient.ViewModels.WoW
         public Patch? Patch { get; set; }
 
         public ICommand? InstallCommand { get; set; }
+        public ICommand? RemoveCommand { get; set; }
 
         public PatchViewModel()
         {

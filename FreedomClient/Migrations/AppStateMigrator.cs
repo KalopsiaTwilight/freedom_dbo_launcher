@@ -15,6 +15,7 @@ namespace FreedomClient.Migrations
             if (Version.Parse(oldState.Version) < new Version(1, 1, 0))
             {
                 status &= new AddInstalledAddonsMigration().Apply(oldState);
+                status &= new AddInstalledPatchesMigration().Apply(oldState);
             }
             return status;
         }

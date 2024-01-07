@@ -1,4 +1,7 @@
-﻿using FreedomClient.DAL;
+﻿using FreedomClient.Commands;
+using FreedomClient.DAL;
+using FreedomClient.Models;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using PropertyChanged;
 using System;
@@ -17,13 +20,21 @@ namespace FreedomClient.ViewModels.WoW
 
         public PatchesViewModel PatchesViewModel { get; set; }
 
-        public WoWPatchesPageViewModel(PatchesRepository repository)
+        public WoWPatchesPageViewModel(PatchesRepository repository, IMediator mediator)
         {
             _patchesRepository = repository;
 
             PatchesViewModel = new PatchesViewModel
             {
-                IsLoading = true
+                IsLoading = true,
+                InstallCommand = new RelayCommand(
+                (obj) => true,
+                    (obj) => mediator.Send(new InstallWoWCustomPatchCommand(obj as Patch))
+                ),
+                RemoveCommand = new RelayCommand(
+                (obj) => true,
+                    (obj) => mediator.Send(new RemoveWoWCustomPatchCommand(obj as Patch))
+                ),
             };
             _patchesRepository.GetPatches()
                 .ContinueWith(async (x) =>

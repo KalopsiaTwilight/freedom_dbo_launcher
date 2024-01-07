@@ -1,5 +1,7 @@
-﻿using FreedomClient.Models;
+﻿using FreedomClient.Core;
+using FreedomClient.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,26 +14,28 @@ namespace FreedomClient.DAL
     public class PatchesRepository: IRepository
     {
         private HttpClient _httpClient;
-        public PatchesRepository(HttpClient httpClient) 
+        private ApplicationState _appState;
+        public PatchesRepository(HttpClient httpClient, ApplicationState appState)
         {
             _httpClient = httpClient;
+            _appState = appState;
         }
 
         public async Task<List<Patch>> GetPatches()
         {
-            // TODO: Call API / retrieve json config.
-            await Task.Delay(1000);
-            return new List<Patch>
+            var resp = await _httpClient.GetAsync(Constants.CdnUrl + "/client_content/patches.json");
+            resp.EnsureSuccessStatusCode();
+            var patchesJson = await resp.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<List<Patch>>(patchesJson);
+            result ??= new List<Patch>();
+            foreach (var patch in result)
             {
-                new Patch {
-                    Title = "Mock Patch 1",
-                    Description = "This is a sample patch that I made to show you what a patch could look like.",
-                    Author = "KalopsiaTwilight",
-                    ImageSrc = "https://placekitten.com/180/120",
-                    IsInstalled = false,
-                    Version = "1.0.0"
+                if (_appState.InstalledPatches.Any(x => x.Title == patch.Title))
+                {
+                    patch.IsInstalled = true;
                 }
-            };
+            }
+            return result;
         }
     }
 }

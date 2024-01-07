@@ -1,19 +1,14 @@
 ﻿using FreedomClient.Core;
 using FreedomClient.Models;
-using FreedomClient.ViewModels;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Ookii.Dialogs.Wpf;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Input;
 
 namespace FreedomClient.Commands
 {
@@ -73,7 +68,7 @@ namespace FreedomClient.Commands
 
                 await _fileClient.EnsureFilesInManifest(manifest, addonPath, _appState.UIOperation.CancellationTokenSource.Token);
 
-                _appState.InstalledAddons.Add(request.Addon.Title, request.Addon.Version);
+                _appState.InstalledAddons.Add(request.Addon);
                 request.Addon.IsInstalled = true;
 
                 _appState.UIOperation.Progress = 100;
@@ -81,6 +76,7 @@ namespace FreedomClient.Commands
                 _appState.UIOperation.ProgressReport = "";
                 _appState.UIOperation.IsFinished = true;
                 _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
+                CommandManager.InvalidateRequerySuggested();
             }
             catch(OperationCanceledException)
             {

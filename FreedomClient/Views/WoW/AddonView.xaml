@@ -16,11 +16,16 @@
     <Grid Height="120" VerticalAlignment="Top" x:Name="mainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="180"/>
-            <ColumnDefinition Width="390"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="220"/>
         </Grid.ColumnDefinitions>
-
-        <Image Source="{Binding Addon.ImageSrc}"  HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Stretch="Uniform"></Image>
+        
+        <Border CornerRadius="8">
+            <Border.Background>
+                <ImageBrush Stretch="Uniform" ImageSource="{Binding Addon.ImageSrc}" />
+            </Border.Background>
+        </Border>
+        
         <TextBlock Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" 
                    FontSize="24" FontFamily="{StaticResource Morpheus}" 
                    Margin="10,0,0,0"
@@ -30,6 +35,7 @@
         <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top"
                            TextWrapping="WrapWithOverflow"
                    FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
+                   Foreground="#1a1a1a"
                    Margin="10,35,0,0"
                    Grid.Column="1"
                    Text="{Binding Addon.Description}"
@@ -39,26 +45,28 @@
         <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top"
                            TextWrapping="WrapWithOverflow"
                    FontSize="14" FontFamily="{StaticResource Fritz Quadrata}"  
-                   Margin="60,10,0,0"
+                   Margin="20,5,0,0"
                    Text="{StaticResource txt_WoW_Addons_Author}"
+                   Foreground="#1a1a1a"
                 />
         <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top"
                            TextWrapping="WrapWithOverflow"
                    FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
-                   Margin="60,25,0,0"
+                   Margin="20,30,0,0"
                    Text="{StaticResource txt_WoW_Addons_Version}"
+                   Foreground="#1a1a1a"
                 />
 
         <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top"
                            TextWrapping="WrapWithOverflow"
                    FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
-                   Margin="120,25,0,0"
+                   Margin="80,30,0,0"
                    Text="{Binding Addon.Version}"
                 />
         <TextBlock Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top"
                            TextWrapping="NoWrap"
                    FontSize="14" FontFamily="{StaticResource Fritz Quadrata}" 
-                   Margin="120,10,0,0"
+                   Margin="80,5,0,0"
                    Text="{Binding Addon.DisplayAuthor}"
                 />
 

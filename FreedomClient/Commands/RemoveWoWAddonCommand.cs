@@ -1,20 +1,14 @@
 ﻿using FreedomClient.Core;
 using FreedomClient.Models;
 using FreedomClient.Utilities;
-using FreedomClient.ViewModels;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Ookii.Dialogs.Wpf;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Input;
 
 namespace FreedomClient.Commands
 {
@@ -87,13 +81,15 @@ namespace FreedomClient.Commands
                     return;
                 }
 
-                _appState.InstalledAddons.Remove(request.Addon.Title);
+                _appState.InstalledPatches.RemoveAll(x => x.Title == request.Addon.Title);
                 request.Addon.IsInstalled = false;
 
                 _appState.UIOperation.Progress = 100;
                 _appState.UIOperation.Message = "Addon succesfully removed!";
                 _appState.UIOperation.ProgressReport = "";
                 _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
+                _appState.UIOperation.IsFinished = true;
+                CommandManager.InvalidateRequerySuggested();
             }
             catch(OperationCanceledException)
             {
