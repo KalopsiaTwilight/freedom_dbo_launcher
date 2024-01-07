@@ -53,6 +53,9 @@ namespace FreedomClient.Commands
                 {
                     _logger.LogError(exc, null);
                     _appState.UIOperation.Message = "Unable to connect to Freedom's CDN. Please try again later.";
+                    _appState.UIOperation.ProgressReport = "";
+                    _appState.UIOperation.IsFinished = true;
+                    CommandManager.InvalidateRequerySuggested();
                     return;
                 }
 
@@ -78,6 +81,7 @@ namespace FreedomClient.Commands
                     _appState.UIOperation.Message = "Failed to delete a file in the addon's manifest. Please manually clean up the files and retry this operation.";
                     _appState.UIOperation.ProgressReport = "";
                     _appState.UIOperation.IsFinished = true;
+                    CommandManager.InvalidateRequerySuggested();
                     return;
                 }
 
@@ -95,6 +99,7 @@ namespace FreedomClient.Commands
             {
                 _appState.UIOperation.Message = "Installation cancelled.";
                 _appState.UIOperation.IsCancelled = true;
+                CommandManager.InvalidateRequerySuggested();
             }
         }
     }

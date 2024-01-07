@@ -52,7 +52,10 @@ namespace FreedomClient.Commands
                 catch (HttpRequestException exc)
                 {
                     _logger.LogError(exc, null);
-                    _appState.UIOperation.Message = "Unable to connect to Freedom's CDN. Please try again later.";
+                    _appState.UIOperation.Message = "Unable to connect to Freedom's CDN. Please try again later."; 
+                    _appState.UIOperation.IsFinished = true;
+                    _appState.UIOperation.ProgressReport = "";
+                    CommandManager.InvalidateRequerySuggested();
                     return;
                 }
 
@@ -63,6 +66,9 @@ namespace FreedomClient.Commands
                 if (driveInfo.AvailableFreeSpace < totalDownloadSize)
                 {
                     _appState.UIOperation.Message = $"Not enough free space on drive. {BytesToString(totalDownloadSize)} is required.";
+                    _appState.UIOperation.IsFinished = true;
+                    _appState.UIOperation.ProgressReport = "";
+                    CommandManager.InvalidateRequerySuggested();
                     return;
                 }
 
@@ -82,6 +88,7 @@ namespace FreedomClient.Commands
             {
                 _appState.UIOperation.Message = "Installation cancelled.";
                 _appState.UIOperation.IsCancelled = true;
+                CommandManager.InvalidateRequerySuggested();
             }
         }
     }

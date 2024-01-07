@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace FreedomClient.Commands
@@ -137,6 +138,7 @@ namespace FreedomClient.Commands
                 _appState.UIOperation.IsCancelled = true;
                 _appState.UIOperation.Progress = 0;
                 _appState.UIOperation.ProgressReport = "";
+                CommandManager.InvalidateRequerySuggested();
             }
             else
             {
@@ -144,6 +146,7 @@ namespace FreedomClient.Commands
                 _appState.UIOperation.Message = "An error occured during download. Please try again.";
                 _appState.UIOperation.Progress = 0;
                 _appState.UIOperation.ProgressReport = "";
+                CommandManager.InvalidateRequerySuggested();
             }
         }
 
@@ -157,11 +160,13 @@ namespace FreedomClient.Commands
             {
                 _appState.UIOperation.Message = "Could not validate download. Please contact a dev for help.";
                 _appState.UIOperation.IsCancelled = true;
+                CommandManager.InvalidateRequerySuggested();
             }
             else
             {
                 _appState.UIOperation.IsCancelled = true;
                 _appState.UIOperation.Message = "An error occured during verification of a file. Please try again.";
+                CommandManager.InvalidateRequerySuggested();
             }
         }
 

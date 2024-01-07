@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace FreedomClient.Commands
@@ -56,6 +57,7 @@ namespace FreedomClient.Commands
                         "You might not be able to log in.";
                     _appState.UIOperation.Progress = 100;
                     _appState.UIOperation.IsFinished = true;
+                    CommandManager.InvalidateRequerySuggested();
                     _logger.LogError(exc, null);
                     return;
                 }
@@ -68,6 +70,7 @@ namespace FreedomClient.Commands
                     _appState.UIOperation.Progress = 100;
                     _appState.UIOperation.Message = "Ready to launch!";
                     _appState.UIOperation.IsFinished = true;
+                    CommandManager.InvalidateRequerySuggested();
                 }
                 else
                 {
@@ -107,6 +110,7 @@ namespace FreedomClient.Commands
                     _appState.UIOperation.Message = "Ready to launch!";
                     _appState.UIOperation.Progress = 100;
                     _appState.UIOperation.IsFinished = true;
+                    CommandManager.InvalidateRequerySuggested();
                 }
 
                 if (!CheckRequiredFilesExist(_appState.LastManifest))
@@ -121,6 +125,7 @@ namespace FreedomClient.Commands
             catch (OperationCanceledException) {
                 _appState.UIOperation.Message = "Update cancelled.";
                 _appState.UIOperation.IsCancelled = true;
+                CommandManager.InvalidateRequerySuggested();
             }
         }
 

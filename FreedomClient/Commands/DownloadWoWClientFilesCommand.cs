@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace FreedomClient.Commands
 {
@@ -55,6 +56,8 @@ namespace FreedomClient.Commands
                 {
                     _logger.LogError(exc, null);
                     _appState.UIOperation.Message = "Unable to connect to Freedom's CDN. Please try again later.";
+                    _appState.UIOperation.IsFinished = true;
+                    CommandManager.InvalidateRequerySuggested();
                     return;
                 }
                 _appState.LastManifest = manifest;
@@ -64,6 +67,8 @@ namespace FreedomClient.Commands
                 if (driveInfo.AvailableFreeSpace < totalDownloadSize)
                 {
                     _appState.UIOperation.Message = $"Not enough free space on drive. {BytesToString(totalDownloadSize)} is required.";
+                    _appState.UIOperation.IsFinished = true;
+                    CommandManager.InvalidateRequerySuggested();
                     return;
                 }
 
@@ -79,11 +84,13 @@ namespace FreedomClient.Commands
                 _appState.UIOperation.Message = "Successfully installed! Client is now ready to launch";
                 _appState.UIOperation.ProgressReport = "";
                 _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
+                CommandManager.InvalidateRequerySuggested();
             }
             catch(OperationCanceledException)
             {
                 _appState.UIOperation.Message = "Installation cancelled.";
                 _appState.UIOperation.IsCancelled = true;
+                CommandManager.InvalidateRequerySuggested();
             }
         }
     }

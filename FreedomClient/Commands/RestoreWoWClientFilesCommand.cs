@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace FreedomClient.Commands
@@ -69,6 +70,7 @@ namespace FreedomClient.Commands
                                 _appState.UIOperation.Message = "Failed to delete extra files, install files were restored.";
                                 _appState.UIOperation.ProgressReport = "";
                                 _appState.UIOperation.IsFinished = true;
+                                CommandManager.InvalidateRequerySuggested();
                                 return;
                             }
                         }
@@ -86,10 +88,12 @@ namespace FreedomClient.Commands
                 _appState.UIOperation.Message = "Installation succesfully restored!.";
                 _appState.UIOperation.ProgressReport = "";
                 _appState.UIOperation.IsFinished = true;
+                CommandManager.InvalidateRequerySuggested();
             }
             catch(OperationCanceledException) {
                 _appState.UIOperation.Message = "Files verification cancelled.";
                 _appState.UIOperation.IsCancelled = true;
+                CommandManager.InvalidateRequerySuggested();
             }
         }
 
