@@ -47,8 +47,15 @@
 
         <Button Style="{DynamicResource BigButton}" 
                 Grid.Row="5" Grid.ColumnSpan="4" 
-                Content="{StaticResource txt_WoW_Settings_ResetInstall}"
-                Command="{Binding ResetInstallCommand}"
-                />
+                Content="{StaticResource txt_WoW_Settings_SoftResetInstall}"
+                Command="{Binding SoftResetInstallCommand}"
+                Margin="0,0,210,0"
+            />
+        <Button Style="{DynamicResource BigButton}" 
+                Grid.Row="5" Grid.ColumnSpan="4" 
+                Content="{StaticResource txt_WoW_Settings_HardResetInstall}"
+                Command="{Binding HardResetInstallCommand}"
+                Margin="210,0,0,0"
+            />
     </Grid>
 </Page>

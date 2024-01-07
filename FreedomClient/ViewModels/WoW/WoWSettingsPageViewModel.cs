@@ -17,7 +17,8 @@ namespace FreedomClient.ViewModels.WoW
     {
         private readonly ApplicationState _appState;
 
-        public ICommand? ResetInstallCommand { get; set; }
+        public ICommand? SoftResetInstallCommand { get; set; }
+        public ICommand? HardResetInstallCommand { get; set; }
 
         public ICommand? CopyLogDirCommand { get; set; }
 
@@ -38,10 +39,20 @@ namespace FreedomClient.ViewModels.WoW
             {
                 Clipboard.SetText(LogPath);
             });
-            ResetInstallCommand = new RelayCommand((_) => !_appState.UIOperation.IsBusy,
+            SoftResetInstallCommand = new RelayCommand((_) => !_appState.UIOperation.IsBusy,
                 (_) =>
                 {
                     mediator.Send(new RestoreWoWClientFilesCommand() { CompleteReset = false });
+                });
+            HardResetInstallCommand = new RelayCommand((_) => !_appState.UIOperation.IsBusy,
+                (_) =>
+                {
+                    var result = MessageBox.Show("Warning: This will remove any files that weren't included in a base install including TRP data and any addons/patches you've installed. You might want to back up your WTF/Addon & any folders for personal patches before proceeding. Are you sure you want to COMPLETELY reset your install?", "Hard Reset Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        mediator.Send(new RestoreWoWClientFilesCommand() { CompleteReset = true });
+                    }
                 });
             ChangeInstallPathCommand = new RelayCommand((_) => !_appState.UIOperation.IsBusy,
                 (_) =>
