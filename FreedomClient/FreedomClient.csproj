@@ -51,6 +51,7 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="ValueConverters" Version="3.0.26" />
+    <PackageReference Include="Velopack" Version="0.0.64" />
   </ItemGroup>
 
   <ItemGroup>

@@ -19,6 +19,7 @@ using FreedomClient.ViewModels;
 using System.Net.Http.Headers;
 using FreedomClient.Views;
 using FreedomClient.Migrations;
+using Velopack;
 
 namespace FreedomClient
 {
@@ -32,6 +33,8 @@ namespace FreedomClient
         public ILogger? Logger { get; private set; }
         protected override void OnStartup(StartupEventArgs e)
        {
+            VelopackApp.Build()
+                .Run();
             LoadApplicationState();
             var services = new ServiceCollection();
             ConfigureServices(services);

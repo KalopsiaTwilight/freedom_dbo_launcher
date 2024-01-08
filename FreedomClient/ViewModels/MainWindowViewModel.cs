@@ -7,15 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PropertyChanged;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Velopack;
+using Velopack.Sources;
 
 namespace FreedomClient.ViewModels
 {
@@ -63,7 +60,33 @@ namespace FreedomClient.ViewModels
 
         private async void TestLatestVersion()
         {
-            _logger.LogInformation("Checking for launcher updates...");
+            try
+            {
+                _logger.LogInformation("Checking for launcher updates via Velopack...");
+                var mgr = new UpdateManager(new GithubSource("https://github.com/KalopsiaTwilight/freedom_client", "", false));
+
+                var newVersion = await mgr.CheckForUpdatesAsync();
+                if (newVersion == null)
+                {
+                    return;
+                }
+                var result = MessageBox.Show("A new launcher version is available, would you like the launcher to download and install it?", "New version available", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
+                {
+                    await mgr.DownloadUpdatesAsync(newVersion);
+                    mgr.ApplyUpdatesAndRestart();
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+            }
+            TestLatestVersionManual();
+        }
+
+        private async void TestLatestVersionManual()
+        {
+            _logger.LogInformation("Checking for launcher updates manually...");
             try
             {
                 var resp = await _httpClient.GetAsync(Constants.CdnUrl + "/latestClientVersion.txt");
