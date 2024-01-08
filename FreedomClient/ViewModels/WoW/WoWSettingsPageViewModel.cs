@@ -28,6 +28,8 @@ namespace FreedomClient.ViewModels.WoW
 
         public string LogPath { get; set; }
 
+        public string Version { get; set; }
+
         public WoWSettingsPageViewModel(ApplicationState appState, IMediator mediator)
         {
             _appState = appState;
@@ -35,6 +37,7 @@ namespace FreedomClient.ViewModels.WoW
             InstallPath = appState.InstallPath ?? string.Empty;
             var localDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             LogPath = System.IO.Path.Join(localDataPath, Constants.AppIdentifier);
+            Version = appState.Version;
             CopyLogDirCommand = new RelayCommand((_) => true, (_) =>
             {
                 Clipboard.SetText(LogPath);

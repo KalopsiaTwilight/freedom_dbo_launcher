@@ -21,6 +21,8 @@
             <RowDefinition Height="10"></RowDefinition>
             <RowDefinition Height="32"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="32"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
         </Grid.RowDefinitions>
         
@@ -45,14 +47,20 @@
             <Image Height="20" Width="20" Source="{StaticResource copy_regularDrawingImage}"/>
         </Button>
 
+        <TextBlock Style="{DynamicResource SettingsTextStyle}" Grid.Row="4" Grid.Column="0" Text="{StaticResource txt_WoW_Settings_Version}"></TextBlock>
+        <TextBox Style="{DynamicResource MainTextBoxStyle}" 
+         Grid.Row="4" Grid.Column="1" 
+         IsEnabled="False"
+         Text="{Binding Version}"/>
+
         <Button Style="{DynamicResource BigButton}" 
-                Grid.Row="5" Grid.ColumnSpan="4" 
+                Grid.Row="7" Grid.ColumnSpan="4" 
                 Content="{StaticResource txt_WoW_Settings_SoftResetInstall}"
                 Command="{Binding SoftResetInstallCommand}"
                 Margin="0,0,210,0"
             />
         <Button Style="{DynamicResource BigButton}" 
-                Grid.Row="5" Grid.ColumnSpan="4" 
+                Grid.Row="7" Grid.ColumnSpan="4" 
                 Content="{StaticResource txt_WoW_Settings_HardResetInstall}"
                 Command="{Binding HardResetInstallCommand}"
                 Margin="210,0,0,0"
