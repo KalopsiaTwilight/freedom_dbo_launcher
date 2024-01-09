@@ -63,11 +63,13 @@ namespace FreedomClient.ViewModels
             try
             {
                 _logger.LogInformation("Checking for launcher updates via Velopack...");
-                var mgr = new UpdateManager(new GithubSource("https://github.com/KalopsiaTwilight/freedom_client", "", false));
+                var source = new GithubSource("https://github.com/KalopsiaTwilight/freedom_client", "", false);
+                var mgr = new UpdateManager(source);
 
                 var newVersion = await mgr.CheckForUpdatesAsync();
                 if (newVersion == null)
                 {
+                    _logger.LogInformation($"Launcher is up to date!");
                     return;
                 }
                 var result = MessageBox.Show("A new launcher version is available, would you like the launcher to download and install it?", "New version available", MessageBoxButton.YesNo);
@@ -78,8 +80,9 @@ namespace FreedomClient.ViewModels
                     return;
                 }
             }
-            catch (Exception)
+            catch (Exception exc)
             {
+                _logger.LogError(exc, null);
             }
             TestLatestVersionManual();
         }
