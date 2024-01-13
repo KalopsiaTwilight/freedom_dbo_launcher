@@ -66,6 +66,11 @@ namespace FreedomClient.Core
                 {
                     toRedownload.Add(entry.Key, entry.Value);
                 }
+                catch (Exception e)
+                {
+                    ExceptionDuringVerify?.Invoke(this, new ExceptionDuringVerifyEventArgs(e));
+                    throw;
+                }
             }
             // Redownload invalid files
             try
@@ -159,10 +164,26 @@ namespace FreedomClient.Core
 
                     // Download file
                     var outputPath = Path.Combine(installPath, filePath);
-                    await DownloadFile(manifestEntry.Value, outputPath, cancellationToken);
+                    try
+                    {
+                        await DownloadFile(manifestEntry.Value, outputPath, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        ExceptionDuringDownload?.Invoke(this, new ExceptionDuringDownloadEventArgs(e));
+                        throw;
+                    }
 
                     // Verify SHA1 Hash for file
-                    await VerifyFile(manifestEntry.Value, outputPath, cancellationToken);
+                    try
+                    {
+                        await VerifyFile(manifestEntry.Value, outputPath, cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        ExceptionDuringVerify?.Invoke(this, new ExceptionDuringVerifyEventArgs(e));
+                        throw;
+                    }
                 }
                 // Clean up files for this source
                 await CleanupDownloadSource(group.First().Value.Source, cancellationToken);
@@ -176,22 +197,15 @@ namespace FreedomClient.Core
             DownloadTimer.Reset();
             FileDownloadStarted?.Invoke(this, new FileDownloadStartedEventArgs(entry, downloadPath));
             DownloadTimer.Start();
-            try
+            Action<long> progressCallback = (read) => FileDownloadProgress?.Invoke(this, new FileDownloadProgressEventArgs(entry, read, downloadPath));
+            switch (entry.Source)
             {
-                Action<long> progressCallback = (read) => FileDownloadProgress?.Invoke(this, new FileDownloadProgressEventArgs(entry, read, downloadPath));
-                switch (entry.Source)
-                {
-                    case DirectHttpDownloadSource httpSource: await DownloadHttpFile(httpSource, downloadPath, cancellationToken, progressCallback); break;
-                    case GoogleDriveDownloadSource driveSource: await DownloadGoogleDriveFile(driveSource, downloadPath, cancellationToken, progressCallback); break;
-                    case GoogleDriveArchiveDownloadSource driveArchiveSource: await DownloadGoogleDriveArchiveFile(driveArchiveSource, downloadPath, cancellationToken, progressCallback); break;
-                    default: throw new ArgumentException($"Unable to download source type: {entry.Source.GetType().Name}", nameof(entry));
-                };
-            }
-            catch (Exception e)
-            {
-                ExceptionDuringDownload?.Invoke(this, new ExceptionDuringDownloadEventArgs(e));
-                throw;
-            }
+                case DirectHttpDownloadSource httpSource: await DownloadHttpFile(httpSource, downloadPath, cancellationToken, progressCallback); break;
+                case GoogleDriveDownloadSource driveSource: await DownloadGoogleDriveFile(driveSource, downloadPath, cancellationToken, progressCallback); break;
+                case GoogleDriveArchiveDownloadSource driveArchiveSource: await DownloadGoogleDriveArchiveFile(driveArchiveSource, downloadPath, cancellationToken, progressCallback); break;
+                default: throw new ArgumentException($"Unable to download source type: {entry.Source.GetType().Name}", nameof(entry));
+            };
+
             DownloadTimer.Stop();
             FileDownloadCompleted?.Invoke(this, new FileDownloadCompletedEventArgs(entry, downloadPath));
         }
@@ -255,7 +269,8 @@ namespace FreedomClient.Core
                 {
                     var zipfile = ZipFile.Open(tempFilePath, ZipArchiveMode.Read);
                     zipfile.Dispose();
-                } catch
+                }
+                catch
                 {
                     File.Delete(tempFilePath);
                 }
@@ -283,7 +298,8 @@ namespace FreedomClient.Core
                         if (progress.Exception != null)
                         {
                             throw progress.Exception;
-                        } else
+                        }
+                        else
                         {
                             throw new InvalidDataException();
                         }
@@ -291,7 +307,7 @@ namespace FreedomClient.Core
                 }
             }
             ExtractFileFromArchive(tempFilePath, outputPath);
-           
+
         }
 
         private void ExtractFileFromArchive(string archivePath, string outputPath)
@@ -331,52 +347,44 @@ namespace FreedomClient.Core
         private async Task VerifyFile(DownloadManifestEntry entry, string filePath, CancellationToken cancellationToken)
         {
             FileVerifyStarted?.Invoke(this, new FileVerifyStartedEventArgs(entry, filePath));
-            try
-            {
-                byte[] hash;
-                var buffersize = 1024 * 1024;
+            byte[] hash;
+            var buffersize = 1024 * 1024;
 
-                using (var filestream = File.OpenRead(filePath))
+            using (var filestream = File.OpenRead(filePath))
+            {
+                byte[] readAheadBuffer = new byte[buffersize];
+                byte[] buffer = new byte[buffersize];
+                int readAheadBytesRead, bytesRead;
+                long totalBytesRead = 0;
+                readAheadBytesRead = await filestream.ReadAsync(readAheadBuffer, 0, readAheadBuffer.Length, cancellationToken);
+                totalBytesRead += readAheadBytesRead;
+                while (readAheadBytesRead > 0)
                 {
-                    byte[] readAheadBuffer = new byte[buffersize];
-                    byte[] buffer = new byte[buffersize];
-                    int readAheadBytesRead, bytesRead;
-                    long totalBytesRead = 0;
+                    bytesRead = readAheadBytesRead;
+                    readAheadBuffer.CopyTo(buffer, 0);
                     readAheadBytesRead = await filestream.ReadAsync(readAheadBuffer, 0, readAheadBuffer.Length, cancellationToken);
                     totalBytesRead += readAheadBytesRead;
-                    while (readAheadBytesRead > 0)
-                    {
-                        bytesRead = readAheadBytesRead;
-                        readAheadBuffer.CopyTo(buffer, 0);
-                        readAheadBytesRead = await filestream.ReadAsync(readAheadBuffer, 0, readAheadBuffer.Length, cancellationToken);
-                        totalBytesRead += readAheadBytesRead;
 
-                        if (readAheadBytesRead == 0)
-                        {
-                            _hashAlgo.TransformFinalBlock(buffer, 0, bytesRead);
-                        }
-                        else
-                        {
-                            _hashAlgo.TransformBlock(buffer, 0, bytesRead, buffer, 0);
-                        }
-                        FileVerifyProgress?.Invoke(this, new FileVerifyProgressEventArgs(entry, totalBytesRead, filePath));
-                        cancellationToken.ThrowIfCancellationRequested();
+                    if (readAheadBytesRead == 0)
+                    {
+                        _hashAlgo.TransformFinalBlock(buffer, 0, bytesRead);
                     }
-                    hash = _hashAlgo.Hash!;
+                    else
+                    {
+                        _hashAlgo.TransformBlock(buffer, 0, bytesRead, buffer, 0);
+                    }
+                    FileVerifyProgress?.Invoke(this, new FileVerifyProgressEventArgs(entry, totalBytesRead, filePath));
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
-                var reportedHash = StringToByteArrayFastest(entry.Hash);
-                if (!ByteArrayCompare(hash, reportedHash))
-                {
-                    File.Delete(filePath);
-                    throw new TamperedFileException(filePath);
-                }
-                FileVerifyCompleted?.Invoke(this, new FileVerifyCompletedEventArgs(entry, filePath));
+                hash = _hashAlgo.Hash!;
             }
-            catch (Exception e)
+            var reportedHash = StringToByteArrayFastest(entry.Hash);
+            if (!ByteArrayCompare(hash, reportedHash))
             {
-                ExceptionDuringVerify?.Invoke(this, new ExceptionDuringVerifyEventArgs(e));
-                throw;
+                File.Delete(filePath);
+                throw new TamperedFileException(filePath);
             }
+            FileVerifyCompleted?.Invoke(this, new FileVerifyCompletedEventArgs(entry, filePath));
         }
 
         static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
