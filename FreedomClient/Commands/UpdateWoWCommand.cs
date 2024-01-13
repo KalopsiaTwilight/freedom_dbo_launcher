@@ -33,6 +33,9 @@ namespace FreedomClient.Commands
 
         public async Task Handle(UpdateWoWCommand request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(_appState.InstallPath)) {
+                return;
+            }
             try
             {
                 _appState.UIOperation = new UIOperation()
@@ -113,14 +116,6 @@ namespace FreedomClient.Commands
                     CommandManager.InvalidateRequerySuggested();
                 }
 
-                if (!CheckRequiredFilesExist(_appState.LastManifest))
-                {
-                    _logger.LogInformation("Found missing files, starting restore..");
-                    _appState.UIOperation.Progress = 0;
-                    _appState.UIOperation.Message = "Restoring missing files...";
-
-                    await _mediator.Send(new RestoreWoWClientFilesCommand() { CompleteReset = false });
-                }
             }
             catch (OperationCanceledException) {
                 _appState.UIOperation.Message = "Update cancelled.";
