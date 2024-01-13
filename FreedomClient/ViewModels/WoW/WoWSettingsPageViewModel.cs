@@ -15,8 +15,6 @@ namespace FreedomClient.ViewModels.WoW
     [AddINotifyPropertyChangedInterface]
     public class WoWSettingsPageViewModel: IViewModel
     {
-        private readonly ApplicationState _appState;
-
         public ICommand? SoftResetInstallCommand { get; set; }
         public ICommand? HardResetInstallCommand { get; set; }
 
@@ -24,7 +22,7 @@ namespace FreedomClient.ViewModels.WoW
 
         public ICommand? ChangeInstallPathCommand { get; set; }
 
-        public string InstallPath { get; set; }
+        public ApplicationState ApplicationState { get; set; }
 
         public string LogPath { get; set; }
 
@@ -32,9 +30,7 @@ namespace FreedomClient.ViewModels.WoW
 
         public WoWSettingsPageViewModel(ApplicationState appState, IMediator mediator)
         {
-            _appState = appState;
-
-            InstallPath = appState.InstallPath ?? string.Empty;
+            ApplicationState = appState;
             var localDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             LogPath = System.IO.Path.Join(localDataPath, Constants.AppIdentifier);
             Version = appState.Version;
@@ -42,12 +38,12 @@ namespace FreedomClient.ViewModels.WoW
             {
                 Clipboard.SetText(LogPath);
             });
-            SoftResetInstallCommand = new RelayCommand((_) => !_appState.UIOperation.IsBusy && !string.IsNullOrEmpty(_appState.InstallPath),
+            SoftResetInstallCommand = new RelayCommand((_) => !ApplicationState.UIOperation.IsBusy && !string.IsNullOrEmpty(ApplicationState.InstallPath),
                 (_) =>
                 {
                     mediator.Send(new RestoreWoWClientFilesCommand() { CompleteReset = false });
                 });
-            HardResetInstallCommand = new RelayCommand((_) => !_appState.UIOperation.IsBusy && !string.IsNullOrEmpty(_appState.InstallPath),
+            HardResetInstallCommand = new RelayCommand((_) => !ApplicationState.UIOperation.IsBusy && !string.IsNullOrEmpty(ApplicationState.InstallPath),
                 (_) =>
                 {
                     var result = MessageBox.Show("Warning: This will remove any files that weren't included in a base install including TRP data and any addons/patches you've installed. You might want to back up your WTF/Addon & any folders for personal patches before proceeding. Are you sure you want to COMPLETELY reset your install?", "Hard Reset Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -57,7 +53,7 @@ namespace FreedomClient.ViewModels.WoW
                         mediator.Send(new RestoreWoWClientFilesCommand() { CompleteReset = true });
                     }
                 });
-            ChangeInstallPathCommand = new RelayCommand((_) => !_appState.UIOperation.IsBusy,
+            ChangeInstallPathCommand = new RelayCommand((_) => !ApplicationState.UIOperation.IsBusy,
                 (_) =>
                 {
                     var folderDialog = new VistaFolderBrowserDialog();
@@ -66,8 +62,7 @@ namespace FreedomClient.ViewModels.WoW
                         return;
                     }
 
-                    InstallPath = folderDialog.SelectedPath;
-                    _appState.InstallPath = folderDialog.SelectedPath;
+                    ApplicationState.InstallPath = folderDialog.SelectedPath;
                     mediator.Send(new RestoreWoWClientFilesCommand() { CompleteReset = false });
                 });
         }

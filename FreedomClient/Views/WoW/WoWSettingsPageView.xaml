@@ -27,7 +27,7 @@
         </Grid.RowDefinitions>
         
         <TextBlock Style="{DynamicResource SettingsTextStyle}" Grid.Row="0" Grid.Column="0" Text="{StaticResource txt_WoW_Settings_InstallDir}" />
-        <TextBox Style="{DynamicResource MainTextBoxStyle}" Grid.Row="0" Grid.Column="1" IsEnabled="False" Text="{Binding InstallPath}"></TextBox>
+        <TextBox Style="{DynamicResource MainTextBoxStyle}" Grid.Row="0" Grid.Column="1" IsEnabled="False" Text="{Binding ApplicationState.InstallPath}"></TextBox>
         <Button Style="{DynamicResource IconButtonStyle}" 
                 Grid.Row="0" Grid.Column="2" 
                 ToolTip="{StaticResource txt_WoW_Settings_TT_InstallDir}" 
