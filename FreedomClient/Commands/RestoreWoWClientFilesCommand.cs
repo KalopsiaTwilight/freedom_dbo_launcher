@@ -42,6 +42,11 @@ namespace FreedomClient.Commands
                 };
                 _appState.LoadState = ApplicationLoadState.VerifyingFiles;
                 var manifest = _appState.LastManifest;
+                if (manifest.Count == 0)
+                {
+                    manifest = await _fileClient.GetManifest(_appState.UIOperation.CancellationTokenSource.Token);
+                    _appState.LastManifest = manifest;
+                }
 
                 await _fileClient.EnsureFilesInManifest(manifest, _appState.InstallPath!, _appState.UIOperation.CancellationTokenSource.Token);
                 StopClientOperation();
