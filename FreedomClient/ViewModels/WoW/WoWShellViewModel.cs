@@ -68,7 +68,7 @@ namespace FreedomClient.ViewModels.WoW
                 (_) => ApplicationState.LoadState == ApplicationLoadState.NotInstalled,
                 (_) =>
                 {
-                    mediator.Send(new DownloadWoWClientFilesCommand());
+                    mediator.Send(new DownloadWoWClientFilesCommand(this));
                 }
             );
 

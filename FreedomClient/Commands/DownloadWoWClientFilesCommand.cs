@@ -1,25 +1,26 @@
 ﻿using FreedomClient.Core;
 using FreedomClient.Models;
-using FreedomClient.ViewModels;
+using FreedomClient.ViewModels.WoW;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Ookii.Dialogs.Wpf;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace FreedomClient.Commands
 {
     public class DownloadWoWClientFilesCommand : IRequest
     {
+        public WoWShellViewModel ShellViewModel { get; set; }
+        public DownloadWoWClientFilesCommand(WoWShellViewModel shellViewModel)
+        {
+            ShellViewModel = shellViewModel;
+        }
     }
 
     public class DownloadWoWClientFilesCommandHandler : FileClientUIOperationCommandHandler, IRequestHandler<DownloadWoWClientFilesCommand>
@@ -47,6 +48,7 @@ namespace FreedomClient.Commands
                 }
 
                 _appState.UIOperation.Message = "Downloading manifest...";
+                _appState.LoadState = ApplicationLoadState.CheckForUpdate;
                 DownloadManifest manifest;
                 try
                 {
@@ -83,6 +85,9 @@ namespace FreedomClient.Commands
                 _appState.UIOperation.Progress = 100;
                 _appState.UIOperation.Message = "Successfully installed! Client is now ready to launch";
                 _appState.UIOperation.ProgressReport = "";
+                _appState.UIOperation.IsFinished = true;
+                request.ShellViewModel.IsInstalled = true;
+                CommandManager.InvalidateRequerySuggested();
                 _appState.LoadState = ApplicationLoadState.ReadyToLaunch;
                 CommandManager.InvalidateRequerySuggested();
             }
