@@ -13,7 +13,7 @@ namespace FreedomClient.Models
     {
         const string NoOpOperationName = "NO_OP";
 
-        [AlsoNotifyFor("IsNoOp")]
+        [AlsoNotifyFor("IsNoOp", "IsBusy")]
         public string Name { get; set; }
         public string Message { get; set; }
         public string ProgressReport { get; set; }
@@ -24,7 +24,7 @@ namespace FreedomClient.Models
         public bool IsCancelled { get; set; }
         public bool IsCancellable { get; set; }
 
-        public bool IsBusy => !IsCancelled && !IsFinished;
+        public bool IsBusy => !IsNoOp && !IsCancelled && !IsFinished;
 
         public CancellationTokenSource CancellationTokenSource { get; set; }
 
