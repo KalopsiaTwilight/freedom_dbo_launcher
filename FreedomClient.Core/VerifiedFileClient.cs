@@ -312,11 +312,12 @@ namespace FreedomClient.Core
 
         private void ExtractFileFromArchive(string archivePath, string outputPath)
         {
+            var outFileName = Path.GetFileName(outputPath).ToLower();
             using (ZipArchive zip = ZipFile.Open(archivePath, ZipArchiveMode.Read))
             {
                 foreach (var entry in zip.Entries)
                 {
-                    if (outputPath.ToLower().Contains(entry.FullName.ToLower()))
+                    if (outFileName == entry.Name.ToLower() && outputPath.ToLower().Contains(entry.FullName.ToLower()))
                     {
                         entry.ExtractToFile(outputPath, true);
                         break;
