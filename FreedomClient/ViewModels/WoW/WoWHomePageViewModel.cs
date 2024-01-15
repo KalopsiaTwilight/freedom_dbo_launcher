@@ -73,25 +73,33 @@ namespace FreedomClient.ViewModels.WoW
         private async void UpdateServerStatus(object? state)
         {
             var debugTimer = Stopwatch.StartNew();
-            var resp = await _httpClient.PostAsync(Constants.MinimanagerUrl + "/Data/StatusLinePartial", null);
-            debugTimer.Stop();
-            Debug.WriteLine($"Received status line partial response in {debugTimer.ElapsedMilliseconds} ms.");
-            ServerStatus = ServerStatus.Unknown;
-            if (resp.IsSuccessStatusCode)
+            try
             {
-                var statusText = await resp.Content.ReadAsStringAsync();
-                var match = Regex.Match(statusText, ".*status-(\\w+)");
-                if (match.Success)
+                var resp = await _httpClient.PostAsync(Constants.MinimanagerUrl + "/Data/StatusLinePartial", null); debugTimer.Stop();
+                Debug.WriteLine($"Received status line partial response in {debugTimer.ElapsedMilliseconds} ms.");
+                ServerStatus = ServerStatus.Unknown;
+                if (resp.IsSuccessStatusCode)
                 {
-                    switch (match.Groups[1].Value)
+                    var statusText = await resp.Content.ReadAsStringAsync();
+                    var match = Regex.Match(statusText, ".*status-(\\w+)");
+                    if (match.Success)
                     {
-                        case "good": ServerStatus = ServerStatus.Up; break;
-                        case "loading": ServerStatus = ServerStatus.StartingUp; break;
-                        case "bad": ServerStatus = ServerStatus.Down; break;
+                        switch (match.Groups[1].Value)
+                        {
+                            case "good": ServerStatus = ServerStatus.Up; break;
+                            case "loading": ServerStatus = ServerStatus.StartingUp; break;
+                            case "bad": ServerStatus = ServerStatus.Down; break;
+                        }
                     }
-                }
 
+                }
             }
+            catch (Exception e)
+            {
+                ServerStatus = ServerStatus.Unknown;
+                _logger.LogError(e, null);
+                return;
+            }   
         }
 
         private async void UpdateLauncherImages()
