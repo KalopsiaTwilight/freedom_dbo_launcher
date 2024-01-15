@@ -3,6 +3,7 @@ using FreedomClient.Models;
 using Google.Apis.Logging;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,6 +13,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -46,8 +48,12 @@ namespace FreedomClient.Commands
                     Progress = 0
                 };
                 var uiCancelToken = _appState.UIOperation.CancellationTokenSource.Token;
-                _logger.LogInformation("Checking for client files updates...");
+                if (!CheckInstallPath())
+                {
+                    return;
+                }
 
+                _logger.LogInformation("Checking for client files updates...");
                 // Checkout latest manifest
                 DownloadManifest latestManifest;
                 try
@@ -134,6 +140,26 @@ namespace FreedomClient.Commands
                     Directory.Delete(subDirectory);
                 }
             }
+        }
+
+        private bool CheckInstallPath()
+        {
+            var arctiumPath = Path.Join(_appState.InstallPath, "Arctium WoW Launcher.exe");
+            if (!File.Exists(arctiumPath))
+            {
+                _logger.LogWarning("Unable to find client files in currently configured install path: {0}", _appState.InstallPath);
+                MessageBox.Show(
+                    $"The launcher was unable to find a required file in the currently configured client files location: '{_appState.InstallPath}'. Were the files perhaps moved into another folder?\n\nPlease select the location where the 'Arctium WoW Launcher.exe' file can be found in the dialog that will open."
+                    , "Could not verify client files location", MessageBoxButton.OK, MessageBoxImage.Warning);
+                var folderDialog = new VistaFolderBrowserDialog();
+                folderDialog.SelectedPath = _appState.InstallPath + "/";
+                if (folderDialog.ShowDialog() != true)
+                {
+                    return false;
+                }
+                _appState.InstallPath = folderDialog.SelectedPath;
+            }
+            return true;
         }
 
         private bool CheckRequiredFilesExist(DownloadManifest manifest)
