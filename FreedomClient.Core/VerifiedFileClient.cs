@@ -236,7 +236,7 @@ namespace FreedomClient.Core
         private async Task DownloadGoogleDriveFile(GoogleDriveDownloadSource source, string outputPath, CancellationToken cancellationToken, Action<long>? reportCallback = null)
         {
             var credential = GoogleCredential
-                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()!).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
+                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()!, "FreedomClient").GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
                 .CreateScoped(DriveService.Scope.Drive);
             var service = new DriveService(new BaseClientService.Initializer()
             {
@@ -278,7 +278,7 @@ namespace FreedomClient.Core
             if (!File.Exists(tempFilePath))
             {
                 var credential = GoogleCredential
-                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()!).GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
+                .FromStream(new EmbeddedFileProvider(Assembly.GetEntryAssembly()!, "FreedomClient").GetFileInfo(Constants.GoogleCredentialsJsonPath).CreateReadStream())
                 .CreateScoped(DriveService.Scope.Drive);
                 var service = new DriveService(new BaseClientService.Initializer()
                 {

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:wowViews="clr-namespace:FreedomClient.Views.WoW"
+        xmlns:dboViews="clr-namespace:FreedomClient.Views.Dbo"
         xmlns:ccntrl="clr-namespace:FreedomClient.Controls"
         xmlns:vm="clr-namespace:FreedomClient.ViewModels"
         mc:Ignorable="d"
@@ -38,25 +38,13 @@
             <StackPanel>
                 <ccntrl:HamburgerMenuItem 
                     Command="{Binding NavigateSubFrameCommand}" 
-                    CommandParameter="{x:Type wowViews:WoWHomePageView}"
+                    CommandParameter="{x:Type dboViews:DboHomePageView}"
                 >
                     <TextBlock Style="{DynamicResource SettingsTextStyle}" Text="{StaticResource txt_MainWindow_NavBar_PageHome}"></TextBlock>
                 </ccntrl:HamburgerMenuItem>
                 <ccntrl:HamburgerMenuItem 
                     Command="{Binding NavigateSubFrameCommand}" 
-                    CommandParameter="{x:Type wowViews:WoWPatchesPageView}"
-                >
-                    <TextBlock Style="{DynamicResource SettingsTextStyle}" Text="{StaticResource txt_MainWindow_NavBar_PagePatches}"></TextBlock>
-                </ccntrl:HamburgerMenuItem>
-                <ccntrl:HamburgerMenuItem 
-                    Command="{Binding NavigateSubFrameCommand}" 
-                    CommandParameter="{x:Type wowViews:WoWAddonsPageView}"
-                >
-                    <TextBlock Style="{DynamicResource SettingsTextStyle}" Text="{StaticResource txt_MainWindow_NavBar_PageAddons}"></TextBlock>
-                </ccntrl:HamburgerMenuItem>
-                <ccntrl:HamburgerMenuItem 
-                    Command="{Binding NavigateSubFrameCommand}" 
-                    CommandParameter="{x:Type wowViews:WoWSettingsPageView}"
+                    CommandParameter="{x:Type dboViews:DboSettingsPageView}"
                 >
                     <TextBlock Style="{DynamicResource SettingsTextStyle}" Text="{StaticResource txt_MainWindow_NavBar_PageSettings}"></TextBlock>
                 </ccntrl:HamburgerMenuItem>

@@ -1,7 +1,9 @@
 ﻿using FreedomClient.Core;
 using FreedomClient.Models;
+using FreedomClient.ViewModels.Dbo;
 using FreedomClient.ViewModels.WoW;
 using FreedomClient.Views;
+using FreedomClient.Views.Dbo;
 using FreedomClient.Views.WoW;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -50,10 +52,14 @@ namespace FreedomClient.ViewModels
                 {
                     (wowShell.DataContext as WoWShellViewModel)?.NavigateFrameCommand?.Execute(x);
                 }
+                else if (CurrentFrame is DboShellView dboShell)
+                {
+                    (dboShell.DataContext as DboShellViewModel)?.NavigateFrameCommand?.Execute(x);
+                }
                 IsNavMenuOpen = false;
             });
 
-            CurrentFrame = serviceProvider.GetRequiredService<WoWShellView>();
+            CurrentFrame = serviceProvider.GetRequiredService<DboShellView>();
 
             TestLatestVersion();
         }
@@ -63,7 +69,7 @@ namespace FreedomClient.ViewModels
             try
             {
                 _logger.LogInformation("Checking for launcher updates via Velopack...");
-                var source = new GithubSource("https://github.com/KalopsiaTwilight/freedom_client", "", false);
+                var source = new GithubSource("https://github.com/KalopsiaTwilight/freedom_dbo_launcher", "", false);
                 var mgr = new UpdateManager(source);
 
                 var newVersion = await mgr.CheckForUpdatesAsync();
@@ -92,7 +98,7 @@ namespace FreedomClient.ViewModels
             _logger.LogInformation("Checking for launcher updates manually...");
             try
             {
-                var resp = await _httpClient.GetAsync(Constants.CdnUrl + "/latestClientVersion.txt");
+                var resp = await _httpClient.GetAsync(Constants.CdnUrl + "/latestDboClientVersion.txt");
                 if (resp.IsSuccessStatusCode)
                 {
                     var versionTxt = await resp.Content.ReadAsStringAsync();

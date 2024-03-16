@@ -61,7 +61,7 @@ namespace FreedomClient.Commands
 
         private void OnManifestDownloadStarted(object? sender, ManifestDownloadStartedEventArgs e)
         {
-            _totalBytesToProcess = CalculateTotalBytesToDownload(e.ToDownload) + e.ToDownload.Sum(x => x.Value.FileSize);
+            _totalBytesToProcess = e.ToDownload.Sum(x => x.Value.FileSize) * 2;
             _totalBytesDownloaded = 0;
             _totalBytesVerified = 0;
             _operationTimer.Restart();
@@ -77,7 +77,16 @@ namespace FreedomClient.Commands
 
         private void OnFileDownloadStart(object? sender, FileDownloadStartedEventArgs e)
         {
+            var totalDownloaded = _totalBytesDownloaded;
+            var progress = (totalDownloaded + _totalBytesVerified) / (double)_totalBytesToProcess * 100;
+            var downloadedPMs = (totalDownloaded) / (double)_operationTimer.ElapsedMilliseconds;
+
+            var timeEst = downloadedPMs > 0
+                ? TimeSpan.FromMilliseconds((_totalBytesToProcess / 2 - totalDownloaded) / downloadedPMs).ToString("hh\\:mm\\:ss")
+                : "Unknown";
             _appState.UIOperation.Message = $"Downloading {Path.GetFileName(e.FilePath)}...";
+            _appState.UIOperation.Progress = progress;
+            _appState.UIOperation.ProgressReport = $"{BytesToString(totalDownloaded, 1)} / {BytesToString(_totalBytesToProcess / 2, 1)} ({timeEst} remaining)";
         }
         private void OnFileDownloadCompleted(object? sender, FileDownloadCompletedEventArgs e)
         {
@@ -148,7 +157,9 @@ namespace FreedomClient.Commands
                 _appState.UIOperation.ProgressReport = "";
                 CommandManager.InvalidateRequerySuggested();
             }
+            OnExceptionDuringDownload(e.Exception);
         }
+
 
         private void OnExceptionDuringVerification(object? sender, ExceptionDuringVerifyEventArgs e)
         {
@@ -168,7 +179,11 @@ namespace FreedomClient.Commands
                 _appState.UIOperation.Message = "An error occured during verification of a file. Please try again.";
                 CommandManager.InvalidateRequerySuggested();
             }
+            OnExceptionDuringVerification(e.Exception);
         }
+
+        protected virtual void OnExceptionDuringDownload(Exception e) { }
+        protected virtual void OnExceptionDuringVerification(Exception e) { }
 
         protected long CalculateTotalBytesToDownload(DownloadManifest manifest)
         {

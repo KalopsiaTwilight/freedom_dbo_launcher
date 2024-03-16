@@ -2,13 +2,17 @@
 {
     public static class Constants
     {
-        public const string AppIdentifier = "WoWFreedomClient";
+        public const string AppIdentifier = "DboFreedomClient";
 
         public const string CdnUrl = "https://cdn.wowfreedom-rp.com";
+
+        public const string DboManifestUrl = CdnUrl + "/dbo/manifest.json";
+        public const string DboSignatureUrl = CdnUrl + "/dbo/signature";
+
         public const string MinimanagerUrl = "https://mm.wowfreedom-rp.com";
 
         //public const string LauncherImagesDriveFolderId = "1U3PPhiYNoh-TfWXqYILOVu_KhLtPes4V";
-        public const string LauncherImagesDriveFolderId = "1J58NJzyY3F5c5XRrcklJB870KW52xQwc";
+        public const string LauncherImagesDriveFolderId = "1i6Z--3rVdzruHrdekdSiDfzDZonAhGqS";
 
         public const string GoogleCredentialsJsonPath = "data/google-credentials.json";
         public const string PublicSigningCert = @"-----BEGIN CERTIFICATE-----

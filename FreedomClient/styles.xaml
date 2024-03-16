@@ -5,10 +5,16 @@
  >
     <FontFamily x:Key="Morpheus" >./assets/fonts/#Morpheus</FontFamily>
     <FontFamily x:Key="Fritz Quadrata">./assets/fonts/#Friz Quadrata Std</FontFamily>
+    <FontFamily x:Key="Saiyan Sans">./assets/fonts/#Saiyan Sans</FontFamily>
+    
     
     <ImageBrush x:Key="ButtonNormal" ImageSource="assets/images/btn_normal.png"></ImageBrush>
     <ImageBrush x:Key="ButtonDisabled" ImageSource="assets/images/btn_disabled.png"></ImageBrush>
     <ImageBrush x:Key="ButtonHighLight" ImageSource="assets/images/btn_highlight.png"></ImageBrush>
+
+    <ImageBrush x:Key="ButtonNormal2" ImageSource="assets/images/btn_normal2.png"></ImageBrush>
+    <ImageBrush x:Key="ButtonDisabled2" ImageSource="assets/images/btn_disabled2.png"></ImageBrush>
+    <ImageBrush x:Key="ButtonHighLight2" ImageSource="assets/images/btn_highlight2.png"></ImageBrush>
 
     <Style x:Key="SettingsTextStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="TextWrapping" Value="NoWrap"/>
@@ -96,6 +102,43 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Background" Value="{StaticResource ButtonDisabled}"/>
+                            <Setter Property="Foreground" Value="Gray"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="BigButton_Dbo" TargetType="Button">
+        <Setter Property="Width" Value="200"/>
+        <Setter Property="Height" Value="55"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{StaticResource ButtonNormal2}"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="TextBlock.LineHeight" Value="36"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontFamily" Value="{StaticResource Morpheus}"/>
+        <Setter Property="TextBlock.Effect">
+            <Setter.Value>
+                <DropShadowEffect/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid Background="{TemplateBinding Background}">
+                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource ButtonHighLight2}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource ButtonHighLight2}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="{StaticResource ButtonDisabled2}"/>
                             <Setter Property="Foreground" Value="Gray"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
